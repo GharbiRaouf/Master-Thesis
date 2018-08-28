@@ -1,0 +1,8 @@
+# sudo printf "[Unit]
+# Description = Starting Prototype
+# After = network.target
+# [Service]
+# ExecStart = $(pwd)/startprototype
+# [Install]
+# WantedBy = multi-user.target" >  /etc/systemd/system/prototype.service
+# sudo systemctl enable prototype.service

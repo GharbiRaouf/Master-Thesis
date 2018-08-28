@@ -1,0 +1,9 @@
+virtualenv
+numpy
+gensim
+tensorflow
+keras
+wtforms
+flask
+gunicorn
+virtualenv
