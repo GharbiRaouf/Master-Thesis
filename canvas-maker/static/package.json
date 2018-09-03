@@ -107,7 +107,6 @@
     "extends": "react-app"
   },
   "devDependencies": {
-    "node-sass": "latest",
     "sass-loader": "^6.0.7"
   }
 }
