@@ -24,7 +24,7 @@ import * as actionCreators from '../../actions/auth';
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        userName: state.auth.userName,
+        userEmail: state.auth.userEmail,
         isAuthenticated: state.auth.isAuthenticated,
     };
 }
@@ -110,29 +110,29 @@ class Header extends React.Component {
             <div className={classes.list}>
                 <Divider />
                 <List>
-                
-                <MenuItem onClick={() => this.dispatchNewRoute('/dashboard')}>
-                                Dashboard
-                            </MenuItem>
-                {
-                    !this.props.isAuthenticated ?
-                        <div>
-                            <MenuItem onClick={() => this.dispatchNewRoute('/login')}>
-                                Login
-                            </MenuItem>
-                            <MenuItem onClick={() => this.dispatchNewRoute('/register')}>
-                                Register
-                            </MenuItem>
-                        </div>
-                        :
-                        <div>
-                            <Divider />
 
-                            <MenuItem onClick={(e) => this.logout(e)}>
-                                Logout
+                    {
+                        !this.props.isAuthenticated ?
+                            <div>
+                                <MenuItem onClick={() => this.dispatchNewRoute('/login')}>
+                                    Login
                             </MenuItem>
-                        </div>
-                }</List>
+                                <MenuItem onClick={() => this.dispatchNewRoute('/register')}>
+                                    Register
+                            </MenuItem>
+                            </div>
+                            :
+                            <div>
+                                <MenuItem onClick={() => this.dispatchNewRoute('/dashboard')}>
+                                    Dashboard
+                                    </MenuItem>
+                                <Divider />
+
+                                <MenuItem onClick={(e) => this.logout(e)}>
+                                    Logout
+                            </MenuItem>
+                            </div>
+                    }</List>
             </div>
         )
 
@@ -193,7 +193,7 @@ class Header extends React.Component {
                                     onClose={this.handleMenuClose}
                                 >
                                     <MenuItem onClick={() => this.dispatchNewRoute('/main')}>Profile</MenuItem>
-                                    <MenuItem onClick={this.handleMenuClose}>My account</MenuItem>
+                                    <MenuItem onClick={() => this.dispatchNewRoute('/editaccount')}>Account Settings</MenuItem>
                                 </Menu>
                             </div>
                         )}

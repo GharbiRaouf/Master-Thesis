@@ -1,6 +1,6 @@
 export const NotesCards = [
     {
-        id: "0",
+        note_id: "0",
         color: "#f44336",
         title: "test note",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
@@ -10,7 +10,7 @@ export const NotesCards = [
         expanded: false
     },
     {
-        id: "21",
+        note_id: "21",
         color: "#00bcd4",
         title: "",
         description: "",
@@ -20,7 +20,7 @@ export const NotesCards = [
         expanded: false
     },
     {
-        id: "3",
+        note_id: "3",
         color: "#009688",
         title: "test note",
         description:

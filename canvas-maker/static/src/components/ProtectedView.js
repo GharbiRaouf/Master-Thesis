@@ -38,7 +38,7 @@ class ProtectedView extends React.Component {
                     :
                     <div>
                         <h1>Welcome back,
-                            {this.props.userName}!</h1>
+                            {this.props.userEmail}!</h1>
                         <h1>{this.props.data.data.email}</h1>
                     </div>
                 }
@@ -50,7 +50,7 @@ class ProtectedView extends React.Component {
 ProtectedView.propTypes = {
     fetchProtectedData: PropTypes.func,
     loaded: PropTypes.bool,
-    userName: PropTypes.string,
+    userEmail: PropTypes.string,
     data: PropTypes.any,
     token: PropTypes.string,
 };

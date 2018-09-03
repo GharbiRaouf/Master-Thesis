@@ -11,16 +11,16 @@ bcrypt = Bcrypt()
 
 
 def create_app(config_name):
-    app = Flask(__name__, static_folder="../static", template_folder="../static/public",
-                instance_relative_config=True)
+    app = Flask(__name__, static_folder="./backendstatic", template_folder="./backendstatic",
+                instance_relative_config=False)
     app.config.from_object(app_config[config_name])
-    app.config.from_pyfile('config.py')
+    app.config.from_pyfile('../config.py')
     bcrypt.init_app(app)
 
     @app.route('/', methods=['GET'])
     def index():
         return render_template('index.html')
-
+ 
     @app.route('/<path:path>', methods=['GET'])
     def any_root_path(path):
         return render_template('index.html')

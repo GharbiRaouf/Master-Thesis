@@ -8,10 +8,13 @@ import {
     REGISTER_USER_FAILURE,
     REGISTER_USER_REQUEST,
     REGISTER_USER_SUCCESS,
+    UPDATE_USER_FAILURE,
+    UPDATE_USER_REQUEST,
+    UPDATE_USER_SUCCESS,
 } from '../constants/index';
 
 import { parseJSON } from '../utils/misc';
-import { get_token, create_user } from '../utils/http_functions';
+import { get_token, create_user, update_user } from '../utils/http_functions';
 
 
 export function loginUserSuccess(token) {
@@ -92,6 +95,53 @@ export function loginUser(email, password) {
     };
 }
 
+export function updateUserRequest() {
+    return {
+        type: UPDATE_USER_REQUEST,
+    }
+}
+
+export function updateUserSuccess(token) {
+    localStorage.setItem('token', token);
+    return {
+        type: UPDATE_USER_SUCCESS,
+        payload: {
+            token,
+        },
+    };
+}
+
+export function updateUserFailure(error) {
+    // localStorage.removeItem('token');
+    return {
+        type: UPDATE_USER_FAILURE,
+        payload: {
+            status: error.response.status,
+            statusText: error.response.statusText,
+        },
+    };
+}
+
+export function updateUser(email, password, username) {
+    return function (dispatch) {
+        dispatch(updateUserRequest());
+        return update_user(email, password, username).
+            then(parseJSON).
+            then(response => {
+                try {
+                    dispatch(updateUserSuccess(response.token));
+                    dispatch(push('/main'));
+                } catch (e) {
+                    dispatch(updateUserFailure({
+                        response: {
+                            status: 403,
+                            statusText: 'Something went Wrong!',
+                        },
+                    }));
+                }
+            })
+    }
+}
 
 export function registerUserRequest() {
     return {

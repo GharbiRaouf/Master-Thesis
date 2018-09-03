@@ -13,18 +13,19 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import red from "@material-ui/core/colors/red";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import timeago from 'timeago.js';
 
 import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/auth';
+import * as actionCreators from '../../actions/canvas';
 
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        userName: state.auth.userName,
+        userEmail: state.auth.userEmail,
         isAuthenticated: state.auth.isAuthenticated,
     };
 }
@@ -102,26 +103,31 @@ class Preview extends React.Component {
     handleClose = () => {
         this.setState({ anchorEl: null });
     };
+    setCanvas = (canvas_id) => {
+        this.props.setCanvasToEdit(canvas_id, this.props.token)
+        this.props.changePage("/designer")
+
+    }
+
 
     render() {
-        const { classes, isPreview, preview, canvasname, canvaslastupdate } = this.props;
+        const { classes, isPreview, canvas_preview, canvas_name, canvas_lastUpdate,canvas_id } = this.props;
         const { anchorEl } = this.state;
         const expanded = !!anchorEl;
         return (
             <Card className={classes.card}>
                 {isPreview ? (
                     <div>
-                        <CardContent>
-                            <CardMedia className={classes.media} image={preview} />
+                        <CardContent onClick={() => this.setCanvas(canvas_id)} >
+                            <CardMedia className={classes.media} image={<img src={canvas_preview} />} />
                         </CardContent>
-                        <CardActions className={classes.actions} disableActionSpacing>
-                            <Grid container justify="center" direction="column" spacing={1}>
-                                <Typography>{canvasname}</Typography>
-                                <Typography variant="caption">{canvaslastupdate}</Typography>
+                        <CardActions className={classes.actions} >
+                            <Grid container justify="center" direction="column" spacing={8}>
+                                <Typography>{canvas_name}</Typography>
+                                <Typography variant="caption">{timeago().format(canvas_lastUpdate)}</Typography>
                             </Grid>
                             <IconButton
                                 aria-label="More"
-                                Z
                                 aria-owns={expanded ? "long-menu" : null}
                                 aria-haspopup="true"
                                 onClick={this.handleClick}
@@ -174,9 +180,6 @@ class Preview extends React.Component {
 Preview.propTypes = {
     classes: PropTypes.object.isRequired,
     isPreview: PropTypes.bool.isRequired,
-    preview: PropTypes.string.isRequired,
-    canvasname: PropTypes.string.isRequired,
-    canvaslastupdate: PropTypes.string.isRequired,
 };
 
 

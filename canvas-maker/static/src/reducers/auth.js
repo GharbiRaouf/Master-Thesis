@@ -13,7 +13,7 @@ import {
 
 const initialState = {
     token: null,
-    userName: null,
+    userEmail: null,
     isAuthenticated: false,
     isAuthenticating: false,
     statusText: null,
@@ -33,7 +33,7 @@ export default createReducer(initialState, {
             isAuthenticating: false,
             isAuthenticated: true,
             token: payload.token,
-            userName: jwtDecode(payload.token).email,
+            userEmail: jwtDecode(payload.token).email,
             statusText: 'You have been successfully logged in.',
         }),
     [LOGIN_USER_FAILURE]: (state, payload) =>
@@ -41,14 +41,14 @@ export default createReducer(initialState, {
             isAuthenticating: false,
             isAuthenticated: false,
             token: null,
-            userName: null,
+            userEmail: null,
             statusText: `Authentication Error: ${payload.status} ${payload.statusText}`,
         }),
     [LOGOUT_USER]: (state) =>
         Object.assign({}, state, {
             isAuthenticated: false,
             token: null,
-            userName: null,
+            userEmail: null,
             statusText: 'You have been successfully logged out.',
         }),
     [REGISTER_USER_SUCCESS]: (state, payload) =>
@@ -57,7 +57,7 @@ export default createReducer(initialState, {
             isAuthenticated: true,
             isRegistering: false,
             token: payload.token,
-            userName: jwtDecode(payload.token).email,
+            userEmail: jwtDecode(payload.token).email,
             registerStatusText: 'You have been successfully logged in.',
         }),
     [REGISTER_USER_REQUEST]: (state) =>
@@ -68,7 +68,7 @@ export default createReducer(initialState, {
         Object.assign({}, state, {
             isAuthenticated: false,
             token: null,
-            userName: null,
+            userEmail: null,
             registerStatusText: `Register Error: ${payload.status} ${payload.statusText}`,
         }),
 });

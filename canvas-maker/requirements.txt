@@ -17,3 +17,4 @@ cuid.py==0.2
 Mako
 flask-cors==3.0.6
 openpyxl==2.5.4
+nanoid

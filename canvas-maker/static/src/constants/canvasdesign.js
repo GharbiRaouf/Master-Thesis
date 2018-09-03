@@ -7,6 +7,7 @@ export const standard_canvas = [
     },
     {
         isCompound: true,
+        id: 1,
         width: 2,
         items: [
             {
@@ -31,6 +32,7 @@ export const standard_canvas = [
     },
     {
         isCompound: true,
+        id: 4,
         width: 2,
         items: [
             {
@@ -78,6 +80,7 @@ export const lean_canvas = [
     },
     {
         isCompound: true,
+        id: 2,
         width:4,
         items: [
             {

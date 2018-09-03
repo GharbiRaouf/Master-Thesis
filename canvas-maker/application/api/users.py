@@ -3,6 +3,7 @@ from ..utils.auth import generate_token, requires_auth, verify_token
 from ..api import api as api_bp
 from ..models import User
 
+
 @api_bp.route("/user", methods=["GET"])
 @requires_auth
 def get_user():
@@ -12,14 +13,28 @@ def get_user():
 @api_bp.route("/create_user", methods=["POST"])
 def create_user():
     incoming = request.get_json()
-    user = User({'email':incoming["email"], 'password': User.hashed_password(incoming["password"])})
-
+    user = User({'email': incoming["email"], 'password': User.hashed_password(
+        incoming["password"])})
     try:
         user.save()
     except Exception:
         return jsonify(message="User with that email already exists"), 409
+    new_user = User.find_one({'email': incoming["email"]})
+    return jsonify(
+        id=str(new_user['_id']),
+        token=generate_token(new_user)
+    )
 
-    new_user = User.find_one({'email':incoming["email"]})
+
+@api_bp.route("/update_user", methods=["POST"])
+@requires_auth
+def update_user():
+    incoming = request.get_json()
+    updated_user = User({'email': incoming["email"], 'password': User.hashed_password(
+        incoming["password"]), 'username': incoming["username"]})
+    User.update_one({'email': updated_user["email"]}, {
+        "$set": updated_user}, upsert=False)
+    new_user = User.find_one({'email': incoming["email"]})
     return jsonify(
         id=str(new_user['_id']),
         token=generate_token(new_user)
@@ -29,7 +44,8 @@ def create_user():
 @api_bp.route("/get_token", methods=["POST"])
 def get_token():
     incoming = request.get_json()
-    user = User.get_user_with_email_and_password(incoming["email"], incoming["password"])
+    user = User.get_user_with_email_and_password(
+        incoming["email"], incoming["password"])
 
     if user:
         return jsonify(token=generate_token(user))

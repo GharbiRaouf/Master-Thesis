@@ -10,7 +10,7 @@ import { validate_token } from "../utils/http_functions"
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        userName: state.auth.userName,
+        userEmail: state.auth.userEmail,
         isAuthenticated: state.auth.isAuthenticated,
     };
 }

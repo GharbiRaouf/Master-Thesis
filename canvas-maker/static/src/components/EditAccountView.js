@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
+import PropTypes from 'prop-types';
+
 import * as actionCreators from '../actions/auth';
 import { validateEmail } from '../utils/misc';
 
@@ -15,15 +17,15 @@ import Button from '@material-ui/core/Button';
 
 function mapStateToProps(state) {
     return {
-        isAuthenticating: state.auth.isAuthenticating,
-        statusText: state.auth.statusText,
+        isRegistering: state.auth.isRegistering,
+        email:state.auth.userEmail,
+        registerStatusText: state.auth.registerStatusText,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return bindActionCreators(actionCreators, dispatch);
 }
-
 
 const style = {
     marginTop: 50,
@@ -34,14 +36,15 @@ const style = {
     display: 'inline-block',
 };
 
-class LoginView extends React.Component {
+class RegisterView extends React.Component {
 
     constructor(props) {
         super(props);
         const redirectRoute = '/login';
         this.state = {
-            email: '',
+            email: props.email,
             password: '',
+            username: props.username,
             email_error_text: null,
             password_error_text: null,
             redirectTo: redirectRoute,
@@ -105,64 +108,57 @@ class LoginView extends React.Component {
     _handleKeyPress(e) {
         if (e.key === 'Enter') {
             if (!this.state.disabled) {
-                this.login(e);
+                this.updateUser(e);
             }
         }
     }
 
-    login(e) {
+    updateUser(e) {
         e.preventDefault();
-        this.props.loginUser(this.state.email, this.state.password, this.state.redirectTo);
+        this.props.updateUser(this.state.email, this.state.password, this.state.redirectTo);
     }
 
     render() {
         return (
             <div className="col-md-6 d-block mx-auto" onKeyPress={(e) => this._handleKeyPress(e)}>
                 <Paper style={style}>
-                    <form role="form">
-                        <div className="text-center">
-                            <h2>Login to view protected content!</h2>
-                            {
-                                this.props.statusText &&
-                                    <div className="alert alert-info">
-                                        {this.props.statusText}
-                                    </div>
-                            }
-
-                            <div className="col-md-12">
-                                <TextField
-                                  style={{width: 200}}
-                                  label="Email"
-                                  placeholder="Email"
-                                  type="email"
-                                  error={!!this.state.email_error_text}
-                                  helperText={this.state.email_error_text}
-                                  onChange={(e) => this.changeValue(e, 'email')}
-                                  margin="normal"
-                                />
-                            </div>
-                            <div className="col-md-12">
-                                <TextField
-                                  style={{width: 200}}
-                                  label="Password"
-                                  placeholder="Password"
-                                  type="password"
-                                  error={!!this.state.password_error_text}
-                                  helperText={this.state.password_error_text}
-                                  onChange={(e) => this.changeValue(e, 'password')}
-                                  margin="normal"
-                                />
-                            </div>
-
-                            <Button variant="raised" style={{ marginTop: 50 }} 
-                                onClick={(e) => this.login(e)}
-                                disabled={this.state.disabled}
-                            >
-                                Submit
-                            </Button>
-
+                    <div className="text-center">
+                        <div className="col-md-12">
+                            <Typography variant="display1">Edit account for {this.state.email}</Typography>
                         </div>
-                    </form>
+
+                        <div className="col-md-12">
+                            <TextField
+                                value={this.state.username}
+                                style={{ width: 200 }}
+                                label="Username"
+                                placeholder="Username"
+                                type="text"
+                                onChange={(e) => this.changeValue(e, 'username')}
+                                margin="normal"
+                            />
+                        </div>
+                        <div className="col-md-12">
+                            <TextField
+                                style={{ width: 200 }}
+                                label="Password"
+                                placeholder="Password"
+                                type="password"
+                                error={!!this.state.password_error_text}
+                                helperText={this.state.password_error_text}
+                                onChange={(e) => this.changeValue(e, 'password')}
+                                margin="normal"
+                            />
+                        </div>
+
+                        <Button variant="raised" style={{ marginTop: 50 }}
+                            onClick={(e) => this.updateUser(e)}
+                            disabled={this.state.disabled}
+                        >
+                            Submit
+                        </Button>
+
+                    </div>
                 </Paper>
 
             </div>
@@ -171,10 +167,9 @@ class LoginView extends React.Component {
     }
 }
 
-LoginView.propTypes = {
-    loginUser: PropTypes.func,
-    statusText: PropTypes.string,
+RegisterView.propTypes = {
+    registerUser: PropTypes.func,
+    registerStatusText: PropTypes.string,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginView))
-
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RegisterView))

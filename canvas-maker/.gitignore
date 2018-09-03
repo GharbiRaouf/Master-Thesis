@@ -1,11 +1,12 @@
-__pycache__
-/.idea
-/.venv
-# misc
+*.db
 .DS_Store
-.env
-/instance
-/htmlcov
-/migrations
-wsgi.ini
-/deploy_tools
+venv
+env
+__pycache__
+blog_old.md
+node_modules
+.idea/*
+static/.idea/*
+*.pyc
+tmp
+static/dist

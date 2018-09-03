@@ -8,7 +8,7 @@ import * as actionCreators from '../actions/auth';
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        userName: state.auth.userName,
+        userEmail: state.auth.userEmail,
         isAuthenticated: state.auth.isAuthenticated,
     };
 }

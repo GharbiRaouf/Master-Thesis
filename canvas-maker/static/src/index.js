@@ -8,8 +8,6 @@ import { App } from './containers/App';
 
 import './style.scss';
 
-///require('expose?$!expose?jQuery!jquery');
-///require('bootstrap-webpack');
 
 injectTapEventPlugin();
 
@@ -23,5 +21,5 @@ render(
       </div>
     </ConnectedRouter>
   </Provider>,
-  target
+  target,
 );

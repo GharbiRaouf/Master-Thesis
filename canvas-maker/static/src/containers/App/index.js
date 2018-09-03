@@ -10,6 +10,7 @@ import { Footer } from '../../components/Footer';
 import { HomeContainer } from '../../containers/HomeContainer';
 import LoginView from '../../components/LoginView';
 import RegisterView from '../../components/RegisterView';
+import EditAccountView from '../../components/EditAccountView';
 import ProtectedView from '../../components/ProtectedView';
 import Dashboard from '../../components/Dashboard';
 import Designer from '../../components/Canvas/CanvasDesigner';
@@ -35,16 +36,17 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                     <Header />
                     <div
                         className="container"
-                        style={{ marginTop: 10, paddingBottom: 250 }}
+                        style={{ marginTop: 10, paddingBottom: 250, minWidth: "90%",minHeight :100 }}
                     >
                         <Switch>
                             <Route exact path="/" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/main" component={requireAuthentication(ProtectedView)} />
                             <Route path="/login" component={requireNoAuthentication(LoginView)} />
                             <Route path="/register" component={requireNoAuthentication(RegisterView)} />
+                            <Route path="/editaccount" component={requireAuthentication(EditAccountView)} />
                             <Route path="/home" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/dashboard" component={requireNoAuthentication(Dashboard)} />
-                            <Route path="/designer" component={requireNoAuthentication(Designer)} />
+                            <Route path="/dashboard" component={requireAuthentication(Dashboard)} />
+                            <Route path="/designer" component={requireAuthentication(Designer)} />
                             <Route component={DetermineAuth(NotFound)} />
                         </Switch>
 
