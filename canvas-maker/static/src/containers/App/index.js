@@ -22,7 +22,7 @@ import { requireNoAuthentication } from '../../components/notAuthenticatedCompon
 
 
 /* global styles for app */
-import './styles/app.scss';
+// import './styles/app.scss';
 const theme = createMuiTheme();
 class App extends React.Component { // eslint-disable-line react/prefer-stateless-function
     static propTypes = {
