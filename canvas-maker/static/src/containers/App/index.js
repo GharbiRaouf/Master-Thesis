@@ -22,7 +22,6 @@ import { requireNoAuthentication } from '../../components/notAuthenticatedCompon
 
 
 /* global styles for app */
-// import './styles/app.scss';
 const theme = createMuiTheme();
 class App extends React.Component { // eslint-disable-line react/prefer-stateless-function
     static propTypes = {
@@ -46,7 +45,7 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/editaccount" component={requireAuthentication(EditAccountView)} />
                             <Route path="/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/dashboard" component={requireAuthentication(Dashboard)} />
-                            <Route path="/designer" component={requireAuthentication(Designer)} />
+                            <Route path="/designer/:canvas_id" component={requireAuthentication(Designer)} />
                             <Route component={DetermineAuth(NotFound)} />
                         </Switch>
 

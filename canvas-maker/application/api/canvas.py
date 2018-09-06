@@ -5,16 +5,19 @@ from ..models import Canvas
 import nanoid
 from random import choice
 import time
-
+# from ..train import TEXT_GEN 
+from textgenrnn import textgenrnn as TGR
 alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 awesome_text = ["A good Project", "Fantastic Project",
                 "An awesome project", "Best Project all over the world"]
+ 
 
 
-# @api_bp.route("/smite_it_down", methods=["DELETE"])
-# def purify():
-#     Canvas.delete_many({})
-#     return(jsonify(response=list(Canvas.find({}))))
+@api_bp.route("/pineg",methods=["GET"])
+def pineg():
+    return jsonify(response={"message":"Hey"})
+
+
 
 @api_bp.route("/new_canvas", methods=["POST"])
 @requires_auth
@@ -80,6 +83,33 @@ def update_canvas():
         updated_canvas = request.get_json()['canvas']
         Canvas.find_one_and_update({'canvas_id': updated_canvas['canvas_id']}, {
                                    '$set': updated_canvas})
+        return jsonify(user_canvas=Canvas.find_one({'canvas_id': updated_canvas['canvas_id']}, {"_id": 0}))
     except:
         return jsonify(error=False)
-    return jsonify(user_canvas=Canvas.find_one({'canvas_id': updated_canvas['canvas_id']}, {"_id": 0}))
+
+@api_bp.route("/delete_canvas", methods=["POST"])
+@requires_auth
+def delete_canvas():
+    try:
+        target_canvas = request.get_json()['canvas_id']
+        Canvas.find_one_and_delete({'canvas_id': target_canvas})
+        return jsonify(deleteState=True)
+    except:
+        return jsonify(deleteState=False)
+
+
+@api_bp.route("/optimize_text",methods=["POST"])
+def optimize_text():
+    text_to_generate=request.get_json()['text_to_enhance']
+    # if len(text_to_generate)<5:
+    #     return jsonify(suggestions="Give me more text input!")
+    TEXT_GENERATOR=TGR()
+    resultGen=TEXT_GENERATOR.generate(n=5,max_gen_length=30,return_as_list=True)
+    tries=3
+    while tries>0:
+        for item in resultGen:
+            if text_to_generate in item:
+                return jsonify(suggestions=item)
+        resultGen=TEXT_GENERATOR.generate(n=5,max_gen_length=30,return_as_list=True)
+        tries-=1
+    return jsonify(suggestions="No suggestions")

@@ -1,7 +1,8 @@
-import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS } from '../constants/index';
+import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, ON_DELETE_CANVAS, DELETE_CANVAS_DONE } from '../constants/index';
 import { parseJSON } from '../utils/misc';
-import { create_new_canvas, load_all_user_canvas, get_canvas_by_id, post_canvas_update } from '../utils/http_functions';
+import { create_new_canvas, load_all_user_canvas, get_canvas_by_id, post_canvas_update, delete_canvas } from '../utils/http_functions';
 import { logoutAndRedirect } from './auth';
+import { push } from 'react-router-redux';
 
 
 export function fetchingCanvasData() {
@@ -30,7 +31,9 @@ export function createNewCanvas(canvas_type, token) {
                 return parseJSON(response)
             })
             .then(response => {
+
                 dispatch(loadCanvasData(response.canvas));
+                dispatch(push("/designer/" + response.canvas.canvas_id))
             })
             .catch(error => {
                 if (error.status === 401) {
@@ -127,5 +130,33 @@ export function loadAllUserCanvas(token) {
             });
     };
 }
-
+export function onDeleteCanvas() {
+    return {
+        type: ON_DELETE_CANVAS
+    }
+}
+export function deleteDone(status) {
+    return {
+        type: DELETE_CANVAS_DONE,
+        payload:status
+    }
+}
+export function deleteCanvas(canvas_id, token) {
+    return (dispatch) => {
+        dispatch(onDeleteCanvas());
+        delete_canvas(canvas_id, token)
+            .then((response) => {
+                return parseJSON(response)
+            })
+            .then(response => {
+                dispatch(deleteDone(response.deleteState));
+                dispatch(loadAllUserCanvas(token))
+            })
+            .catch(error => {
+                if (error.status === 401) {
+                    dispatch(logoutAndRedirect(error));
+                }
+            });
+    };
+}
 

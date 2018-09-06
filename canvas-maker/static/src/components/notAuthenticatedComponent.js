@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+// import { push } from 'react-router-redux';
 import * as actionCreators from '../actions/auth';
 import { validate_token } from "../utils/http_functions"
 
@@ -28,9 +28,9 @@ export function requireNoAuthentication(Component) {
             loaded: false
         }
 
-        constructor(props) {
-            super(props);
-        }
+        // constructor(props) {
+        //     super(props);
+        // }
 
         componentWillMount() {
             this.checkAuth();

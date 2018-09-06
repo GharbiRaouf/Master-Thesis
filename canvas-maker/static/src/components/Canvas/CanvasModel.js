@@ -8,20 +8,17 @@ import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Popover from "@material-ui/core/Popover";
-import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Input from "@material-ui/core/Input";
-import red from "@material-ui/core/colors/red";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ColorLensIcon from "@material-ui/icons/ColorLens";
 import InfoIcon from "@material-ui/icons/Info";
 import AddIcon from "@material-ui/icons/Add";
+import SaveIcon from "@material-ui/icons/Save";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import _ from "lodash";
 import canvas_style from "../../constants/canvasdesign";
-import NotesCards from "./example";
-import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
@@ -31,18 +28,27 @@ import { InputLabel, FormControl, TextField, Typography } from "@material-ui/cor
 import { BeautifulColors, CanvasModelStyles } from "./assets/canvasstyle.jsx"
 import CircularProgress from '@material-ui/core/CircularProgress';
 import html2canvas from 'html2canvas';
+import { Popper, Chip, Avatar } from "@material-ui/core"
+import DoneIcon from "@material-ui/icons/Done";
+import FaceIcon from "@material-ui/icons/Face";
+
 
 import {
-  reorder,
-  switchColumn,
+  // reorder,
+  // switchColumn,
   getDroppableStyle,
   getItemStyle,
 } from "./utils/dnd_func.js"
 import timeago from "timeago.js";
+import Axios from "axios";
 
 
 const nanoid = require('nanoid');
 
+const suggestion = {
+  "note_headline": "Something better",
+  "note_description": "Better description"
+}
 function mapStateToProps(state) {
   return {
     token: state.auth.token,
@@ -60,8 +66,8 @@ function mapDispatchToProps(dispatch) {
 const makeCanvas = () => {
   return html2canvas(document.querySelector("#preview_canvas")).then(canvas => {
     var extra_canvas = document.createElement("canvas");
-    extra_canvas.setAttribute("width", 160);
-    extra_canvas.setAttribute("height", 90);
+    extra_canvas.setAttribute("width", 320);
+    extra_canvas.setAttribute("height", 180);
     var ctx = extra_canvas.getContext("2d");
     ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 320, 180);
     var dataURL = extra_canvas.toDataURL("image/png");
@@ -72,11 +78,31 @@ const makeCanvas = () => {
 class Designer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      NotesCards: props.canvas ? props.canvas.canvas_notes ? props.canvas.canvas_notes : [] : []
-    };
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.state = {
+      NotesCards: props.canvas ? props.canvas.canvas_notes ? props.canvas.canvas_notes : [] : [],
+      popperAnchorEl: null,
+      lookingForBetterText: false,
+      to_suggest_id: null,
+      suggestion_field: null,
+      suggestion_restult: null,
+    };
+
   }
+  handleNoteHelpClose = () => {
+    this.setState({
+      popperAnchorEl: null
+    });
+  };
+  handleNoteHelpTick = () => {
+    this.handleNoteDescriptionChange(this.state.to_suggest_id, this.state.suggestion_field, this.state.suggestion_restult)
+    this.setState({
+      to_suggest_id: null,
+      suggestion_field: suggestion[this.state.suggestion_field],
+      suggestion_restult: "null",
+      popperAnchorEl: null
+    });
+  };
   componentDidMount() {
     console.log(this.props.match.params.canvas_id, "awesome");
   }
@@ -138,19 +164,37 @@ class Designer extends React.Component {
 
   handleNoteDescriptionChange = (id, field, event) => {
     const { NotesCards } = this.state;
+    let fieldUpdate = event.target ? event.target.value : event
     for (var i in NotesCards) {
       if (NotesCards[i].note_id === id) {
-        NotesCards[i][field] = event.target.value;
+        NotesCards[i][field] = fieldUpdate;
 
         break;
       }
     }
     this.props.updateCanvas("canvas_notes", NotesCards)
     this.props.mustSaveCanvas()
+    if (!event.target) return;
+    this.setState({
+      popperAnchorEl: event.currentTarget,
+      to_suggest_id: id,
+      suggestion_field: field
+    });
 
-    // this.setState({
-    //   NotesCards
-    // });
+    if ((this.state.lookingForBetterText)&&(fieldUpdate.length<4)) return;
+    this.setState({
+      lookingForBetterText: true,
+      suggestion: "null"
+    });
+    Axios.post("/api/v1/optimize_text",{
+      text_to_enhance:fieldUpdate
+    }).then(response=>{
+      this.setState({
+        lookingForBetterText: false,
+        suggestion_restult: response.data.suggestions
+      });
+      return;
+    })
   };
 
   handleDeleteNote = index => {
@@ -175,7 +219,7 @@ class Designer extends React.Component {
     }
     this.props.updateCanvas("canvas_notes", NotesCards)
     this.setState({
-      anchorEl: event?event.currentTarget:null,
+      anchorEl: event ? event.currentTarget : null,
       // NotesCards
     });
   };
@@ -191,7 +235,7 @@ class Designer extends React.Component {
     }
     this.props.updateCanvas("canvas_notes", NotesCards)
     this.setState({
-      infoAnchorEl: event?event.currentTarget:null,
+      infoAnchorEl: event ? event.currentTarget : null,
       // NotesCards
     });
   };
@@ -222,10 +266,14 @@ class Designer extends React.Component {
 
   updateMyCanvas = () => {
     makeCanvas().then(dataURL => {
+      console.log(dataURL == null);
+
       this.props.updateAndSaveCanvas(this.props.canvas, dataURL, this.props.token)
 
     })
   }
+
+
   render() {
     const { classes, canvas } = this.props;
     const { anchorEl, NotesCards, infoAnchorEl } = this.state;
@@ -293,6 +341,8 @@ class Designer extends React.Component {
                                 fullWidth
                                 value={element.note_headline}
                                 placeholder="Note headline"
+
+                                onClick={this.handleNoteHelpClose}
                                 onChange={event =>
                                   this.handleNoteDescriptionChange(
                                     element.note_id,
@@ -304,6 +354,7 @@ class Designer extends React.Component {
                               <Input
                                 value={element.note_description}
                                 fullWidth
+                                onClick={this.handleNoteHelpClose}
                                 className={classes.resize}
                                 placeholder="Note Description"
                                 multiline
@@ -366,30 +417,30 @@ class Designer extends React.Component {
                                 onClose={() => this.handleExpandColorsClick(element.note_id, null)}
 
                               >
-                              <div style={{ width: "100%", padding: 10 }}
->
+                                <div style={{ width: "100%", padding: 10 }}
+                                >
 
-                                {BeautifulColors.map(e => {
-                                  return (
-                                    <Button
-                                      mini
-                                      key={e}
-                                      style={{
-                                        backgroundColor: e,
-                                        maxHeight: "10px",
-                                        maxWidth: "10px"
-                                      }}
-                                      onClick={() =>
-                                        this.handleNoteColorChange(
-                                          element.note_id,
-                                          e
-                                        )
-                                      }
-                                    >
-                                      
-                                    </Button>
-                                  );
-                                })}
+                                  {BeautifulColors.map(e => {
+                                    return (
+                                      <Button
+                                        mini
+                                        key={e}
+                                        style={{
+                                          backgroundColor: e,
+                                          maxHeight: "10px",
+                                          maxWidth: "10px"
+                                        }}
+                                        onClick={() =>
+                                          this.handleNoteColorChange(
+                                            element.note_id,
+                                            e
+                                          )
+                                        }
+                                      >
+
+                                      </Button>
+                                    );
+                                  })}
                                 </div>
                               </Popover>
                             </Paper>
@@ -465,9 +516,49 @@ class Designer extends React.Component {
         {
           this.props.canvasMustSave &&
           <Button variant="fab" className={classes.fab} color="primary" onClick={() => this.updateMyCanvas()}>
-            {this.props.isSaving ? <CircularProgress /> : <AddIcon />}
+            {this.props.isSaving ? <CircularProgress /> : <SaveIcon />}
           </Button>
         }
+        <Popper
+          placement="right"
+          disablePortal={true}
+          modifiers={{
+            flip: {
+              enabled: true
+            },
+            preventOverflow: {
+              enabled: false,
+              boundariesElement: "scrollParent"
+            },
+            arrow: {
+              enabled: true,
+              element: "arrowRef"
+            }
+          }}
+          open={Boolean(this.state.popperAnchorEl)}
+          anchorEl={this.state.popperAnchorEl}
+          onClose={this.handleNoteHelpClose}
+        >
+          {this.state.lookingForBetterText? (
+            <Chip
+              color="secondary"
+              avatar={<AddIcon size={25} />}
+              label={"Working on !!"}
+            />
+          ) : (
+              <Chip
+                color="secondary"
+                deleteIcon={<AddIcon />}
+                onDelete={this.handleNoteHelpTick}
+                avatar={
+                  <Avatar>
+                    <FaceIcon />
+                  </Avatar>
+                }
+                label={this.state.suggestion_restult}
+              />
+            )}
+        </Popper>
       </div>
     );
   }

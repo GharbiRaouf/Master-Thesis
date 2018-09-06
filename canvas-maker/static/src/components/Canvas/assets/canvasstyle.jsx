@@ -1,3 +1,54 @@
+import red from "@material-ui/core/colors/red";
+
+export const CanvasPreviewStyle = theme => ({
+  card: {
+      maxWidth: 400,
+      height: "100%",
+      backgroundColor: "rgb(25, 30, 35)"
+  },
+  media: {
+      height: "100%",
+      paddingTop: "50%" // 16:9
+  },
+  actions: {
+      textFillColor: "grey",
+      display: "flex",
+      bottom: "0",
+      backgroundColor: "rgb(36, 40, 42)"
+  },
+  expand: {
+      transform: "rotate(0deg)",
+      transition: theme.transitions.create("transform", {
+          duration: theme.transitions.duration.shortest
+      }),
+      marginLeft: "auto",
+      [theme.breakpoints.up("sm")]: {
+          marginRight: -8
+      }
+  },
+  expandOpen: {
+      transform: "rotate(180deg)"
+  },
+  avatar: {
+      backgroundColor: red[500]
+  },
+  actiontext: {
+      width: "100%"
+  },
+  ncButton: {
+      width: "100%",
+      height: "40%",
+      position: "relative",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      display: "flex",
+      alignItems: "center",
+      marginTop: "2%",
+      borderColor: "grey"
+  }
+});
 export const CanvasModelStyles = theme => ({
   card: {
     minWidth: "18%",

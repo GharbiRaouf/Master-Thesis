@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
+import axios from "axios";
 
 function mapStateToProps(state) {
   return {
@@ -22,18 +23,19 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(actionCreators, dispatch);
 }
 
+
 class Designer extends React.Component {
-  initiateCanvas() {
-    const canvas_type = "standard_canvas"
-    this.props.createNewCanvas(canvas_type, this.props.token)
+  constructor(props) {
+    super(props)
+    const canvas_id = props.match.params.canvas_id
+    props.setCanvasToEdit(canvas_id, props.token)
   }
 
   render() {
-    const canvas_id = this.props.match.params.canvas_id
-    const { isFetching, canvas, loaded } = this.props
+    const { isFetching, loaded } = this.props
     return (
       <div>
-        {(loaded && !isFetching) ? <CanvasModel key={canvas.canvas_id} /> : "standard_canvas"}
+        {(loaded && !isFetching) ? <CanvasModel /> : "standard_canvas"}
       </div>
     )
   }

@@ -1,4 +1,4 @@
-import { FETCH_CANVAS, LOAD_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, UPDATE_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS } from '../constants';
+import { FETCH_CANVAS, LOAD_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, UPDATE_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, DELETE_CANVAS_DONE, ON_DELETE_CANVAS } from '../constants';
 import { createReducer } from '../utils/misc';
 
 const initialState = {
@@ -7,7 +7,9 @@ const initialState = {
     isFetching: false,
     canvasMustSave: false,
     loaded: false,
-    isSaving: false
+    isSaving: false,
+    onDelete:false,
+    apiResponse:null
 };
 
 export default createReducer(initialState, {
@@ -52,5 +54,13 @@ export default createReducer(initialState, {
         loaded: true,
         user_canvas: payload,
         isFetching: false
+    }),
+    [ON_DELETE_CANVAS]: (state) =>Object.assign({},state,{
+        onDelete:true,
+        response: "On going"
+    }),
+    [DELETE_CANVAS_DONE]: (state,payload) =>Object.assign({},state,{
+        onDelete:false,
+        apiResponse:payload?"Done":"ERROR ON DELETE"
     }),
 });

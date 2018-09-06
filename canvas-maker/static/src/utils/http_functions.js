@@ -52,24 +52,31 @@ export function data_about_user(token) {
 }
 
 export function create_new_canvas(canvas_type, token) {
-    return axios.post('api/v1/new_canvas', {
+    return axios.post('/api/v1/new_canvas', {
         "canvas_type": canvas_type
     }, tokenConfig(token))
 }
 
 export function get_canvas_by_id(canvas_id, token) {
-    return axios.post('api/v1/get_canvas_by_canvas_id', {
+    return axios.post('/api/v1/get_canvas_by_canvas_id', {
         "canvas_id": canvas_id,
     }, tokenConfig(token))
 }
 
 
 export function post_canvas_update(canvas, token) {
-    return axios.post('api/v1/update_canvas', {
+    return axios.post('/api/v1/update_canvas', {
         "canvas": canvas,
     }, tokenConfig(token))
 }
 
+
+export function delete_canvas(canvas_id, token) {
+    return axios.post('/api/v1/delete_canvas', {
+        "canvas_id": canvas_id,
+    }, tokenConfig(token))
+}
+
 export function load_all_user_canvas(token) {
-    return axios.post('api/v1/get_canvas_by_user', {}, tokenConfig(token))
+    return axios.post('/api/v1/get_canvas_by_user', {}, tokenConfig(token))
 }
