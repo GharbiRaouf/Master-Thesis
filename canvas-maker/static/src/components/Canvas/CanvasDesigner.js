@@ -28,7 +28,7 @@ class Designer extends React.Component {
   constructor(props) {
     super(props)
     const canvas_id = props.match.params.canvas_id
-    props.setCanvasToEdit(canvas_id, props.token)
+    if (canvas_id) props.setCanvasToEdit(canvas_id, props.token)
   }
 
   render() {

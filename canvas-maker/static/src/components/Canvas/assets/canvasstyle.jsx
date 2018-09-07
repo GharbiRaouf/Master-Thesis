@@ -8,7 +8,8 @@ export const CanvasPreviewStyle = theme => ({
   },
   media: {
       height: "100%",
-      paddingTop: "50%" // 16:9
+      width: "100%",
+      // paddingTop: "50%" // 16:9
   },
   actions: {
       textFillColor: "grey",

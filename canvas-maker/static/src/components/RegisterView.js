@@ -123,43 +123,46 @@ class RegisterView extends React.Component {
                         <h2>Register to view protected content!</h2>
                         {
                             this.props.registerStatusText &&
-                                <div className="alert alert-info">
-                                    {this.props.registerStatusText}
-                                </div>
+                            <div className="alert alert-info">
+                                {this.props.registerStatusText}
+                            </div>
                         }
 
                         <div className="col-md-12">
                             <TextField
-                              style={{width:200}}
-                              label="Email"
-                              placeholder="Email"
-                              type="email"
-                              error={!!this.state.email_error_text}
-                              helperText={this.state.email_error_text}
-                              onChange={(e) => this.changeValue(e, 'email')}
-                              margin="normal"
+                                style={{ width: 200 }}
+                                label="Email"
+                                placeholder="Email"
+                                type="email"
+                                error={!!this.state.email_error_text}
+                                helperText={this.state.email_error_text}
+                                onChange={(e) => this.changeValue(e, 'email')}
+                                margin="normal"
                             />
                         </div>
                         <div className="col-md-12">
                             <TextField
-                              style={{width: 200}}
-                              label="Password"
-                              placeholder="Password"
-                              type="password"
-                              error={!!this.state.password_error_text}
-                              helperText={this.state.password_error_text}
-                              onChange={(e) => this.changeValue(e, 'password')}
-                              margin="normal"
+                                style={{ width: 200 }}
+                                label="Password"
+                                placeholder="Password"
+                                type="password"
+                                error={!!this.state.password_error_text}
+                                helperText={this.state.password_error_text}
+                                onChange={(e) => this.changeValue(e, 'password')}
+                                margin="normal"
                             />
                         </div>
 
-                        <Button variant="raised" style={{ marginTop: 50 }} 
-                                onClick={(e) => this.login(e)}
-                                disabled={this.state.disabled}
-                            >
+                        <Button variant="raised" style={{ marginTop: 50 }}
+                            onClick={(e) => this.login(e)}
+                            disabled={this.state.disabled}
+                        >
                             Submit
                         </Button>
+                        <div className="col-md-12">
 
+                            {this.props.children}
+                        </div>
                     </div>
                 </Paper>
 

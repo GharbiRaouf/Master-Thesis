@@ -5,6 +5,7 @@ from ..models import Canvas
 import nanoid
 from random import choice
 import time
+import requests as API_REQUESTS
 # from ..train import TEXT_GEN 
 from textgenrnn import textgenrnn as TGR
 alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -113,3 +114,14 @@ def optimize_text():
         resultGen=TEXT_GENERATOR.generate(n=5,max_gen_length=30,return_as_list=True)
         tries-=1
     return jsonify(suggestions="No suggestions")
+
+@api_bp.route("/qualify_headline",methods=["POST"])
+def qualify_headline():
+    
+    header=request.get_json()['text_to_enhance']
+    dictToSend = {'headline':header}
+    res = API_REQUESTS.post('http://localhost:8000/qualify_notes_headline', json=dictToSend)
+    # res = API_REQUESTS.get('https://yesno.wtf/api')
+
+    dictFromOtherServer = res.json()
+    return jsonify(quality=dictFromOtherServer)

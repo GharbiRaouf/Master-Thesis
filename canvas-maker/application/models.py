@@ -25,7 +25,8 @@ class NotesCollection(Collection):
         "note_headline": str,
         "note_description": str,
         "note_color": str,
-        "note_status": str
+        "note_status": str,
+        "note_rating": str
     }
 
     def __init__(self, db, *args, **kwargs):

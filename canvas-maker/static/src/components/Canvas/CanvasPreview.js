@@ -26,6 +26,9 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogActions from "@material-ui/core/DialogActions"
+import canvas_preview_bg from './assets/canvas_preview.png';
+import { TextField } from "@material-ui/core";
+
 
 function mapStateToProps(state) {
     return {
@@ -49,9 +52,18 @@ function Transition(props) {
 class Preview extends React.Component {
     state = {
         anchorEl: null,
-        deletePanelOpen: false
+        deletePanelOpen: false,
+        settingsPaneOpen: false,
+        canvas_name: '',
+        canvas_description: ''
     };
-
+    componentDidMount(){
+        if (Boolean(this.props.canvas))
+            this.setState({
+                canvas_name: this.props.canvas.canvas_name,
+                canvas_description: this.props.canvas.canvas_description,
+            })
+    }
     dispatchNewRoute(route) {
         this.props.changePage(route)
     }
@@ -66,6 +78,10 @@ class Preview extends React.Component {
         if (option == "Delete Canvas") {
             this.setState({ deletePanelOpen: true })
         }
+        else {
+
+            this.setState({ settingsPaneOpen: true })
+        }
     };
     setCanvas = (canvas_id) => {
         this.props.changePage("/designer/" + canvas_id)
@@ -79,16 +95,25 @@ class Preview extends React.Component {
         // this.dispatchNewRoute('/designer/New_Canvas')
     }
 
-    handleCancelDelete = () => {
+    handleCancel = () => {
         this.setState({
-            deletePanelOpen: false
+            deletePanelOpen: false,
+            settingsPaneOpen: false
         })
     }
     handleConfirmDelete = (canvas_id) => {
         this.props.deleteCanvas(canvas_id, this.props.token)
-        this.handleCancelDelete()
+        this.handleCancel()
     }
-
+    handleCanvasDescriptionChange = (e, field) => {
+        this.setState({
+            [field]: e.target.value
+        })
+    }
+    handleConfirmSettings = () => {
+        this.props.updateCanvas('canvas_name', this.state.canvas_name)
+        this.props.updateCanvas('canvas_description', this.state.canvas_description)
+    }
     render() {
         const { classes, isPreview, canvas_preview, canvas_name, canvas_lastUpdate, canvas_id } = this.props;
         const { anchorEl } = this.state;
@@ -99,7 +124,7 @@ class Preview extends React.Component {
                     <div>
                         <CardContent onClick={() => this.setCanvas(canvas_id)} >
                             {console.log(canvas_preview)}
-                            <img className={classes.media} src={canvas_preview} alt='Canvas Preview' />
+                            <img className={classes.media} src={canvas_preview_bg} alt='Canvas Preview' />
                         </CardContent>
                         <CardActions className={classes.actions} >
                             <Grid container justify="center" direction="column" spacing={8}>
@@ -141,7 +166,7 @@ class Preview extends React.Component {
                             open={this.state.deletePanelOpen}
                             TransitionComponent={Transition}
                             keepMounted
-                            onClose={this.handleCancelDelete}
+                            onClose={this.handleCancel}
                             aria-labelledby="alert-dialog-slide-title"
                             aria-describedby="alert-dialog-slide-description"
                         >
@@ -154,14 +179,61 @@ class Preview extends React.Component {
                                 </DialogContentText>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={this.handleCancelDelete} color="default">
+                                <Button onClick={this.handleCancel} color="default">
                                     Disagree
                                 </Button>
-                                <Button onClick={()=>this.handleConfirmDelete(canvas_id)} color="primary">
+                                <Button onClick={() => this.handleConfirmDelete(canvas_id)} color="primary">
+                                    Agree
+                                </Button>
+                            </DialogActions>
+
+                        </Dialog>
+                        <Dialog
+                            open={this.state.settingsPaneOpen}
+                            TransitionComponent={Transition}
+                            keepMounted
+                            onClose={this.handleCancel}
+                            aria-labelledby="alert-dialog-slide-title"
+                            aria-describedby="alert-dialog-slide-description"
+                        >
+                            <DialogTitle id="alert-dialog-slide-title">
+                                {"Confirm Canvas Delete"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    value={this.state.canvas_name}
+                                    label='new canvas name'
+                                    id="canvas_name"
+                                    className={classes.input}
+                                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_name")}
+                                    inputProps={{
+                                        'aria-label': 'Description',
+                                    }}>
+
+                                </TextField>
+                                <br />
+                                <TextField
+                                    value={this.state.canvas_description}
+                                    label='new canvas description'
+                                    id="canvas_description"
+                                    className={classes.input}
+                                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_description")}
+                                    inputProps={{
+                                        'aria-label': 'Description',
+                                    }}>
+
+                                </TextField>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={this.handleCancel} color="default">
+                                    Disagree
+                                </Button>
+                                <Button onClick={() => this.handleConfirmSettings(canvas_id)} color="primary">
                                     Agree
                                 </Button>
                             </DialogActions>
                         </Dialog>
+
                     </div>
                 ) : (
                         <CardContent style={{ height: "100%" }}>

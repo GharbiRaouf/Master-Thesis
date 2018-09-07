@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-
+import nanoid from 'nanoid'
 import { createReducer } from '../utils/misc';
 import {
     LOGIN_USER_SUCCESS,
@@ -9,6 +9,7 @@ import {
     REGISTER_USER_FAILURE,
     REGISTER_USER_REQUEST,
     REGISTER_USER_SUCCESS,
+    REGISTER_ANONYMOUS_USER,
 } from '../constants/index';
 
 const initialState = {
@@ -70,5 +71,12 @@ export default createReducer(initialState, {
             token: null,
             userEmail: null,
             registerStatusText: `Register Error: ${payload.status} ${payload.statusText}`,
+        }),
+    [REGISTER_ANONYMOUS_USER]: (state) =>
+        Object.assign({}, state, {
+            isAuthenticated: false,
+            token: null,
+            userEmail: nanoid(20),
+            registerStatusText: `You are not signed in yet!`,
         }),
 });

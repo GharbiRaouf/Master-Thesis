@@ -46,6 +46,7 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/trydesigner" component={requireNoAuthentication(Designer)} />
                             <Route component={DetermineAuth(NotFound)} />
                         </Switch>
 

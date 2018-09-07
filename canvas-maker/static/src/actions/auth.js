@@ -11,6 +11,7 @@ import {
     UPDATE_USER_FAILURE,
     UPDATE_USER_REQUEST,
     UPDATE_USER_SUCCESS,
+    REGISTER_ANONYMOUS_USER,
 } from '../constants/index';
 
 import { parseJSON } from '../utils/misc';
@@ -198,4 +199,11 @@ export function registerUser(email, password) {
                 ));
             });
     };
+}
+
+
+export function registerAnonymousUser(){
+    return {
+        type:REGISTER_ANONYMOUS_USER
+    }
 }

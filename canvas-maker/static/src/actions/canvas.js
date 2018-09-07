@@ -1,4 +1,4 @@
-import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, ON_DELETE_CANVAS, DELETE_CANVAS_DONE } from '../constants/index';
+import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, ON_DELETE_CANVAS, DELETE_CANVAS_DONE, MAKE_ANONYMOUS_CANVAS } from '../constants/index';
 import { parseJSON } from '../utils/misc';
 import { create_new_canvas, load_all_user_canvas, get_canvas_by_id, post_canvas_update, delete_canvas } from '../utils/http_functions';
 import { logoutAndRedirect } from './auth';
@@ -74,12 +74,14 @@ export function saveCanvasDone() {
 export function updateAndSaveCanvas(canvas, newPreview, token) {
     return (dispatch) => {
         dispatch(saveCanvas(newPreview));
+        if (token === null) {
+            dispatch(saveCanvasDone());
+        }
         post_canvas_update(canvas, token).then((response) => {
             return parseJSON(response)
 
         })
             .then(response => {
-                console.log(response);
                 dispatch(saveCanvasDone());
 
 
@@ -138,7 +140,7 @@ export function onDeleteCanvas() {
 export function deleteDone(status) {
     return {
         type: DELETE_CANVAS_DONE,
-        payload:status
+        payload: status
     }
 }
 export function deleteCanvas(canvas_id, token) {
@@ -160,3 +162,9 @@ export function deleteCanvas(canvas_id, token) {
     };
 }
 
+export function makeAnonymousCanvas(canvas_type) {
+    return {
+        type: MAKE_ANONYMOUS_CANVAS,
+        payload:canvas_type
+    }
+}

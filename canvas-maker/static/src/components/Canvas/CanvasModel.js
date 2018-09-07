@@ -24,7 +24,7 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
-import { InputLabel, FormControl, TextField, Typography } from "@material-ui/core";
+import { InputLabel, FormControl, TextField, Typography, InputAdornment } from "@material-ui/core";
 import { BeautifulColors, CanvasModelStyles } from "./assets/canvasstyle.jsx"
 import CircularProgress from '@material-ui/core/CircularProgress';
 import html2canvas from 'html2canvas';
@@ -85,7 +85,7 @@ class Designer extends React.Component {
       lookingForBetterText: false,
       to_suggest_id: null,
       suggestion_field: null,
-      suggestion_restult: null,
+      suggestion_result: null,
     };
 
   }
@@ -95,11 +95,11 @@ class Designer extends React.Component {
     });
   };
   handleNoteHelpTick = () => {
-    this.handleNoteDescriptionChange(this.state.to_suggest_id, this.state.suggestion_field, this.state.suggestion_restult)
+    this.handleNoteDescriptionChange(this.state.to_suggest_id, this.state.suggestion_field, this.state.suggestion_result)
     this.setState({
       to_suggest_id: null,
       suggestion_field: suggestion[this.state.suggestion_field],
-      suggestion_restult: "null",
+      suggestion_result: "null",
       popperAnchorEl: null
     });
   };
@@ -180,21 +180,42 @@ class Designer extends React.Component {
       to_suggest_id: id,
       suggestion_field: field
     });
+    if (field === "note_headline") {
 
-    if ((this.state.lookingForBetterText)&&(fieldUpdate.length<4)) return;
-    this.setState({
-      lookingForBetterText: true,
-      suggestion: "null"
-    });
-    Axios.post("/api/v1/optimize_text",{
-      text_to_enhance:fieldUpdate
-    }).then(response=>{
+      if ((this.state.lookingForBetterText) && (fieldUpdate.length < 4)) return;
       this.setState({
-        lookingForBetterText: false,
-        suggestion_restult: response.data.suggestions
+        lookingForBetterText: true,
+        suggestion: "null"
       });
-      return;
-    })
+      Axios.post("/api/v1/qualify_headline", {
+        text_to_enhance: fieldUpdate
+      }).then(response => {
+        this.setState({
+          lookingForBetterText: false,
+          // suggestion_result: response.data.suggestions?response.data.suggestions:response.data.quality
+          // suggestion_result: response.data.suggestions ? response.data.suggestions : response.data.quality.answer
+        });
+        let rating = response.data.suggestions ? response.data.suggestions : response.data.quality.toString()
+        this.handleNoteDescriptionChange(id, "note_rating", rating)
+        return;
+      })
+    }
+    else {
+      if ((this.state.lookingForBetterText) && (fieldUpdate.length < 4)) return;
+      this.setState({
+        lookingForBetterText: true,
+        suggestion: "null"
+      });
+      Axios.post("/api/v1/optimize_text", {
+        text_to_enhance: fieldUpdate
+      }).then(response => {
+        this.setState({
+          lookingForBetterText: false,
+          suggestion_result: response.data.suggestions
+        });
+        return;
+      })
+    }
   };
 
   handleDeleteNote = index => {
@@ -259,18 +280,28 @@ class Designer extends React.Component {
     });
   }
   handleCanvasDescriptionChange = (event, field) => {
-    const newdata = event.target.value;
+    let newdata = ''
+    if (field === "canvas_team") {
+      newdata = Array.from(this.props.canvas.canvas_team)
+      newdata.push({ "user": event, "role": "partner" })
+      this.setState({
+        newTeamMate: ""
+      })
+    }
+    else newdata = event.target.value;
     this.props.mustSaveCanvas()
     this.props.updateCanvas(field, newdata)
   }
+  componentDidMount() {
 
-  updateMyCanvas = () => {
     makeCanvas().then(dataURL => {
-      console.log(dataURL == null);
-
-      this.props.updateAndSaveCanvas(this.props.canvas, dataURL, this.props.token)
-
+      this.setState({
+        PREVIEW: dataURL
+      })
     })
+  }
+  updateMyCanvas = () => {
+    this.props.updateAndSaveCanvas(this.props.canvas, this.state.PREVIEW, this.props.token)
   }
 
 
@@ -332,11 +363,11 @@ class Designer extends React.Component {
                             {console.log(NotesCards)}
                             <Paper
                               className={classes.paper}
-                              style={{ backgroundColor: element.note_color }}
+                              style={{ backgroundColor: element.note_color,borderStyle:"solid",borderColor:Boolean(element.note_rating)?"green":"red" }}
                             >
                               <Input
                                 type="text"
-                                style={{ overflowY: "hidden" }}
+                                style={{ overflowY: "hidden"}}
                                 disableUnderline={true}
                                 fullWidth
                                 value={element.note_headline}
@@ -459,37 +490,67 @@ class Designer extends React.Component {
       <div id="preview_canvas">
         {!canvas && <Typography >No Canvas to display! Select one from your Dashboard</Typography>}
         {canvas &&
-          <Grid container style={{ backgroundColor: "#4ebdd4", padding: "5px" }}>
-            <Grid item xs={12}>
+          <Grid container spacing={8} style={{ backgroundColor: "#4ebdd4", padding: "5px" }}>
+            <Grid container item xs={8}>
+              <Grid item xs={12}>
 
-              <FormControl>
-                <InputLabel htmlFor="canvas_name">Project Name</InputLabel>
-                <Input
-                  value={canvas.canvas_name}
-                  id="canvas_name"
-                  className={classes.input}
-                  onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_name")}
-                  inputProps={{
-                    'aria-label': 'Description',
-                  }}
-                />
-              </FormControl>
+                <FormControl>
+                  <InputLabel htmlFor="canvas_name">Project Name</InputLabel>
+                  <Input
+                    value={canvas.canvas_name}
+                    id="canvas_name"
+                    className={classes.input}
+                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_name")}
+                    inputProps={{
+                      'aria-label': 'Description',
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+
+                <FormControl fullWidth>
+                  <InputLabel htmlFor="canvas_description">Project Description</InputLabel>
+                  <Input
+                    value={canvas.canvas_description}
+                    id="canvas_description"
+                    className={classes.input}
+                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_description")}
+                    inputProps={{
+                      'aria-label': 'Description',
+                    }}
+                  />
+                </FormControl>
+              </Grid>
             </Grid>
-
-            <Grid item xs={12}>
-
-              <FormControl fullWidth>
-                <InputLabel htmlFor="canvas_description">Project Name</InputLabel>
+            <Grid item xs={4} container spacing={8}>
+              <Grid item xs={12}>
+                <Typography variant="headline">Team Members</Typography>
+              </Grid>
+              <Grid item xs={12}>
                 <Input
-                  value={canvas.canvas_description}
-                  id="canvas_description"
+                  value={this.state.newTeamMate}
+                  placeholder="Add another Collaborator"
+                  id="teams"
                   className={classes.input}
-                  onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_description")}
+                  onChange={(e) => this.setState({ newTeamMate: e.target.value })}
                   inputProps={{
                     'aria-label': 'Description',
                   }}
+                  endAdornment={<InputAdornment position="end">
+                    <IconButton onClick={() => this.handleCanvasDescriptionChange(this.state.newTeamMate, "canvas_team")}>
+                      <AddIcon />
+                    </IconButton>
+                  </InputAdornment>}
                 />
-              </FormControl>
+              </Grid>
+              <Grid item xs={12} spacing={8}>
+
+                {canvas.canvas_team.map(
+                  (member, index) => { return <Chip key={index} label={member.user} color="primary" onDelete={null} avatar={<Avatar>{member.role[0]}</Avatar>} variant="outlined" /> }
+                )}
+              </Grid>
             </Grid>
           </Grid>}
         {canvas &&
@@ -539,14 +600,14 @@ class Designer extends React.Component {
           anchorEl={this.state.popperAnchorEl}
           onClose={this.handleNoteHelpClose}
         >
-          {this.state.lookingForBetterText? (
+          {this.state.lookingForBetterText ? (
             <Chip
               color="secondary"
               avatar={<AddIcon size={25} />}
               label={"Working on !!"}
             />
           ) : (
-              <Chip
+            this.state.suggestion_result&&<Chip
                 color="secondary"
                 deleteIcon={<AddIcon />}
                 onDelete={this.handleNoteHelpTick}
@@ -555,7 +616,7 @@ class Designer extends React.Component {
                     <FaceIcon />
                   </Avatar>
                 }
-                label={this.state.suggestion_restult}
+                label={this.state.suggestion_result}
               />
             )}
         </Popper>

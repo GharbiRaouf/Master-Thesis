@@ -39,7 +39,7 @@ class ProtectedView extends React.Component {
                     <div>
                         <h1>Welcome back,
                             {this.props.userEmail}!</h1>
-                        <h1>{this.props.data.data.email}</h1>
+                            <h3>{"<-"} Head to your Dashboard!</h3>
                     </div>
                 }
             </div>
