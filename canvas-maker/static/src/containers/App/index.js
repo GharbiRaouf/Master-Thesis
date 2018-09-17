@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { Route, Link, Switch, Redirect } from 'react-router-dom';
-
+import { Route, Switch } from 'react-router-dom';
 /* application components */
 import Header from '../../components/Header';
 import { Footer } from '../../components/Footer';
+import Grid from "@material-ui/core/Grid";
 
 import { HomeContainer } from '../../containers/HomeContainer';
 import LoginView from '../../components/LoginView';
@@ -21,7 +21,6 @@ import { requireAuthentication } from '../../components/AuthenticatedComponent';
 import { requireNoAuthentication } from '../../components/notAuthenticatedComponent';
 
 
-/* global styles for app */
 const theme = createMuiTheme();
 class App extends React.Component { // eslint-disable-line react/prefer-stateless-function
     static propTypes = {
@@ -33,10 +32,12 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
             <MuiThemeProvider theme={theme}>
                 <section>
                     <Header />
-                    <div
+                    {/* <div
                         className="container"
-                        style={{ marginTop: 10, paddingBottom: 250, minWidth: "90%",minHeight :100 }}
-                    >
+                        style={{ marginLeft:0, marginTop: 10, marginBottom: 250, minWidth: 500,width:"100%",minHeight :100 }}
+                    > */}
+                    <Grid container justify="space-around" style={{minWidth:500}}>
+
                         <Switch>
                             <Route exact path="/" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/main" component={requireAuthentication(ProtectedView)} />
@@ -46,11 +47,13 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/share/:canvas_id" component={requireAuthentication(Designer)} />
                             <Route path="/trydesigner" component={requireNoAuthentication(Designer)} />
                             <Route component={DetermineAuth(NotFound)} />
                         </Switch>
 
-                    </div>
+                    {/* </div> */}
+                    </Grid>
                     <div>
                         <Footer />
                     </div>

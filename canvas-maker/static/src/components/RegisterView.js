@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import * as actionCreators from '../actions/auth';
 import { validateEmail } from '../utils/misc';
 
-import { withStyles } from '@material-ui/core/styles';
+// import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
 function mapStateToProps(state) {
@@ -117,10 +117,10 @@ class RegisterView extends React.Component {
 
     render() {
         return (
-            <div className="col-md-6 d-block mx-auto" onKeyPress={(e) => this._handleKeyPress(e)}>
+            <div style={{padding:"3%"}} onKeyPress={(e) => this._handleKeyPress(e)}>
                 <Paper style={style}>
                     <div className="text-center">
-                        <h2>Register to view protected content!</h2>
+                        <h2>Register to Start using Canvas Maker</h2>
                         {
                             this.props.registerStatusText &&
                             <div className="alert alert-info">

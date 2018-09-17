@@ -118,10 +118,10 @@ def optimize_text():
 @api_bp.route("/qualify_headline",methods=["POST"])
 def qualify_headline():
     
-    header=request.get_json()['text_to_enhance']
-    dictToSend = {'headline':header}
-    res = API_REQUESTS.post('http://localhost:8000/qualify_notes_headline', json=dictToSend)
-    # res = API_REQUESTS.get('https://yesno.wtf/api')
+    # header=request.get_json()['text_to_enhance']
+    # dictToSend = {'headline':header}
+    # res = API_REQUESTS.post('http://localhost:8000/qualify_notes_headline', json=dictToSend)
 
-    dictFromOtherServer = res.json()
-    return jsonify(quality=dictFromOtherServer)
+    # dictFromOtherServer = res.json()
+    # return jsonify(quality=dictFromOtherServer)
+    return jsonify(quality=choice([True,False]))

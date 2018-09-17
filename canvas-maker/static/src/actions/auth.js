@@ -126,9 +126,9 @@ export function updateUserFailure(error) {
 export function updateUser(email, password, username) {
     return function (dispatch) {
         dispatch(updateUserRequest());
-        return update_user(email, password, username).
-            then(parseJSON).
-            then(response => {
+        return update_user(email, password, username)
+        .then(parseJSON)
+        .then(response => {
                 try {
                     dispatch(updateUserSuccess(response.token));
                     dispatch(push('/main'));
@@ -202,8 +202,8 @@ export function registerUser(email, password) {
 }
 
 
-export function registerAnonymousUser(){
+export function registerAnonymousUser() {
     return {
-        type:REGISTER_ANONYMOUS_USER
+        type: REGISTER_ANONYMOUS_USER
     }
 }

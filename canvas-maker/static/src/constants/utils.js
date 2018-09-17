@@ -1,0 +1,1 @@
+export const SERVER_URL="h2793844.stratoserver.net/"

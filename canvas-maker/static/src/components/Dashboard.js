@@ -32,7 +32,7 @@ class Dashboard extends React.Component {
     render() {
         const { user_canvas } = this.props
         return (
-            <div className="col-md-12">
+            <div style={{width:"100%",padding:"2%"}}>
                 <h1>Dashboard</h1>
                 <hr />
                 <Grid alignItems="stretch" spacing={8} alignContent="center" justify="center" container>

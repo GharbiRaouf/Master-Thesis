@@ -37,14 +37,12 @@ export const standard_canvas = [
         items: [
             {
                 id: 4,
-                isCompound: true,
                 category: "customer-relationships",
                 width: 12,
                 isCompound: true
             },
             {
                 id: 5,
-                isCompound: true,
                 category: "channels",
                 width: 12,
                 isCompound: true

@@ -44,6 +44,7 @@ class CanvasCollection(Collection):
         'canvas_team': list,
         'canvas_preview': str,
         'canvas_notes': list,
+        'canvas_visibility': str, 
         # canvas_notes:[{
         #     version:""
         #     notes:[]

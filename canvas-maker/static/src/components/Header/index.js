@@ -49,6 +49,7 @@ const styles = theme => ({
     drawerPaper: {
         //position: 'relative',
         width: drawerWidth,
+        zIndex: theme.zIndex.drawer +5
     },
     drawerHeader: {
         display: 'flex',
@@ -102,7 +103,7 @@ class Header extends React.Component {
     };
 
     render() {
-        const { classes, theme } = this.props;
+        const { classes } = this.props;
         const { dr_anchor, dr_open, anchorEl } = this.state;
         const open = Boolean(anchorEl);
 
@@ -165,7 +166,7 @@ class Header extends React.Component {
                         <IconButton onClick={this.handleDrawerOpen} className={classes.menuButton} color="inherit" aria-label="Menu">
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="title" color="inherit" onClick={() => this.dispatchNewRoute('/')} className={classes.flex}>
+                        <Typography variant="title" color="inherit" className={classes.flex}>
                             Canvas-Maker
                         </Typography>
                         {this.props.isAuthenticated && (

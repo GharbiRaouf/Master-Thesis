@@ -1,54 +1,41 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+//Material imports
 import { withStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
-import Popover from "@material-ui/core/Popover";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
-import Input from "@material-ui/core/Input";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ColorLensIcon from "@material-ui/icons/ColorLens";
-import InfoIcon from "@material-ui/icons/Info";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Typography, Avatar } from "@material-ui/core";
+
+
+//Misc
+import canvas_style from "../../constants/canvasdesign";
+import { CanvasModelStyles } from "./assets/canvasstyle.jsx"
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import _ from "lodash";
-import canvas_style from "../../constants/canvasdesign";
+import {
+  getDroppableStyle,
+  getItemStyle,
+} from "./utils/dnd_func.js"
+import html2canvas from 'html2canvas';
+
+//redux
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
-import { InputLabel, FormControl, TextField, Typography, InputAdornment } from "@material-ui/core";
-import { BeautifulColors, CanvasModelStyles } from "./assets/canvasstyle.jsx"
-import CircularProgress from '@material-ui/core/CircularProgress';
-import html2canvas from 'html2canvas';
-import { Popper, Chip, Avatar } from "@material-ui/core"
-import DoneIcon from "@material-ui/icons/Done";
-import FaceIcon from "@material-ui/icons/Face";
-
-
-import {
-  // reorder,
-  // switchColumn,
-  getDroppableStyle,
-  getItemStyle,
-} from "./utils/dnd_func.js"
-import timeago from "timeago.js";
-import Axios from "axios";
-
+import CanvasNote from "./CanvasNote";
 
 const nanoid = require('nanoid');
 
-const suggestion = {
-  "note_headline": "Something better",
-  "note_description": "Better description"
-}
 function mapStateToProps(state) {
   return {
     token: state.auth.token,
@@ -79,6 +66,7 @@ class Designer extends React.Component {
   constructor(props) {
     super(props);
     this.onDragEnd = this.onDragEnd.bind(this);
+
     this.state = {
       NotesCards: props.canvas ? props.canvas.canvas_notes ? props.canvas.canvas_notes : [] : [],
       popperAnchorEl: null,
@@ -89,27 +77,51 @@ class Designer extends React.Component {
     };
 
   }
-  handleNoteHelpClose = () => {
-    this.setState({
-      popperAnchorEl: null
-    });
-  };
-  handleNoteHelpTick = () => {
-    this.handleNoteDescriptionChange(this.state.to_suggest_id, this.state.suggestion_field, this.state.suggestion_result)
-    this.setState({
-      to_suggest_id: null,
-      suggestion_field: suggestion[this.state.suggestion_field],
-      suggestion_result: "null",
-      popperAnchorEl: null
-    });
-  };
-  componentDidMount() {
-    console.log(this.props.match.params.canvas_id, "awesome");
-  }
   dispatchNewRoute(route) {
     this.props.changePage(route)
   }
+  onDragEnd(result) {
+    if(this.props.isShare) return;
+
+    let NotesCards = Array.from(this.state.NotesCards);
+
+    if (
+      !result.destination ||
+      (result.source === result.destination &&
+        result.source.index === result.destination.index)
+    ) {
+      return;
+    }
+    let sourceDrop;
+    let destinDrop;
+    if (result.source.droppableId === result.destination.droppableId) {
+      console.log("sort")
+      sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
+      destinDrop = []
+      const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
+      sourceDrop.splice(result.destination.index, 0, lovelyItem)
+
+
+    } else {
+      sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
+      destinDrop = _.filter(NotesCards, { note_position: result.destination.droppableId })
+      const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
+      lovelyItem.note_position = result.destination.droppableId
+      destinDrop.splice(result.destination.index, 0, lovelyItem)
+    }
+    let stableDrop = _.filter(NotesCards, e => { return ((_.indexOf(sourceDrop, e) < 0) && (_.indexOf(destinDrop, e) < 0)) })
+    stableDrop = [...stableDrop, ...sourceDrop, ...destinDrop]
+    this.props.mustSaveCanvas()
+    this.setState({
+      NotesCards: stableDrop
+    })
+    this.props.updateCanvas("canvas_notes", stableDrop)
+  }
+
   handleAddNote = note_position => {
+    if(this.props.isShare) return;
+    console.log("Heyy");
+    
     const { NotesCards } = this.state;
     NotesCards.push({
       note_id: nanoid(),
@@ -126,160 +138,9 @@ class Designer extends React.Component {
     this.props.mustSaveCanvas()
 
   };
-  onDragEnd(result) {
 
-    let NotesCards;
-    if (
-      !result.destination ||
-      (result.source === result.destination &&
-        result.source.index === result.destination.index)
-    ) {
-      return;
-    }
-    if (result.source.droppableId === result.destination.droppableId) {
-
-      NotesCards = Array.from(this.state.NotesCards)
-      let sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
-      const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
-      sourceDrop.splice(result.destination.index, 0, lovelyItem)
-
-
-    } else {
-      NotesCards = Array.from(this.state.NotesCards)
-      let sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
-      let destinDrop = _.filter(NotesCards, { note_position: result.destination.droppableId })
-      const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
-      lovelyItem.note_position = result.destination.droppableId
-      destinDrop.splice(result.destination.index, 0, lovelyItem)
-
-
-    }
-    this.props.mustSaveCanvas()
-    this.props.updateCanvas("canvas_notes", this.state.NotesCards)
-    console.log(result, NotesCards, this.state.NotesCards);
-    // this.setState({
-    //   NotesCards
-    // });
-  }
-
-  handleNoteDescriptionChange = (id, field, event) => {
-    const { NotesCards } = this.state;
-    let fieldUpdate = event.target ? event.target.value : event
-    for (var i in NotesCards) {
-      if (NotesCards[i].note_id === id) {
-        NotesCards[i][field] = fieldUpdate;
-
-        break;
-      }
-    }
-    this.props.updateCanvas("canvas_notes", NotesCards)
-    this.props.mustSaveCanvas()
-    if (!event.target) return;
-    this.setState({
-      popperAnchorEl: event.currentTarget,
-      to_suggest_id: id,
-      suggestion_field: field
-    });
-    if (field === "note_headline") {
-
-      if ((this.state.lookingForBetterText) && (fieldUpdate.length < 4)) return;
-      this.setState({
-        lookingForBetterText: true,
-        suggestion: "null"
-      });
-      Axios.post("/api/v1/qualify_headline", {
-        text_to_enhance: fieldUpdate
-      }).then(response => {
-        this.setState({
-          lookingForBetterText: false,
-          // suggestion_result: response.data.suggestions?response.data.suggestions:response.data.quality
-          // suggestion_result: response.data.suggestions ? response.data.suggestions : response.data.quality.answer
-        });
-        let rating = response.data.suggestions ? response.data.suggestions : response.data.quality.toString()
-        this.handleNoteDescriptionChange(id, "note_rating", rating)
-        return;
-      })
-    }
-    else {
-      if ((this.state.lookingForBetterText) && (fieldUpdate.length < 4)) return;
-      this.setState({
-        lookingForBetterText: true,
-        suggestion: "null"
-      });
-      Axios.post("/api/v1/optimize_text", {
-        text_to_enhance: fieldUpdate
-      }).then(response => {
-        this.setState({
-          lookingForBetterText: false,
-          suggestion_result: response.data.suggestions
-        });
-        return;
-      })
-    }
-  };
-
-  handleDeleteNote = index => {
-    const { NotesCards } = this.state;
-    let id = _.findIndex(NotesCards, { note_id: index });
-    NotesCards.splice(id, 1);
-    this.props.updateCanvas("canvas_notes", NotesCards)
-    this.props.mustSaveCanvas()
-
-    // this.setState({
-    //   NotesCards
-    // });
-  };
-  handleExpandColorsClick = (id, event) => {
-    const { NotesCards } = this.state;
-    for (var i in NotesCards) {
-      if (NotesCards[i].note_id === id) {
-        NotesCards[i].expanded = !Boolean(NotesCards[i].expanded);
-
-        break;
-      }
-    }
-    this.props.updateCanvas("canvas_notes", NotesCards)
-    this.setState({
-      anchorEl: event ? event.currentTarget : null,
-      // NotesCards
-    });
-  };
-
-  handleExpandInfoClick = (id, event) => {
-    const { NotesCards } = this.state;
-    for (var i in NotesCards) {
-      if (NotesCards[i].note_id === id) {
-        NotesCards[i].note_info_expanded = !Boolean(NotesCards[i].note_info_expanded);
-
-        break;
-      }
-    }
-    this.props.updateCanvas("canvas_notes", NotesCards)
-    this.setState({
-      infoAnchorEl: event ? event.currentTarget : null,
-      // NotesCards
-    });
-  };
-
-
-  handleNoteColorChange(item, color) {
-    const { NotesCards } = this.state;
-    for (var i in NotesCards) {
-      if (NotesCards[i].note_id === item) {
-        NotesCards[i].note_color = color;
-        NotesCards[i].expanded = !Boolean(NotesCards[i].expanded);
-
-        break;
-      }
-    }
-    this.props.mustSaveCanvas()
-    this.props.updateCanvas("canvas_notes", NotesCards)
-    this.setState({
-      anchorEl: null,
-      // NotesCards
-    });
-  }
   handleCanvasDescriptionChange = (event, field) => {
+    if(this.props.isShare) return;
     let newdata = ''
     if (field === "canvas_team") {
       newdata = Array.from(this.props.canvas.canvas_team)
@@ -292,22 +153,26 @@ class Designer extends React.Component {
     this.props.mustSaveCanvas()
     this.props.updateCanvas(field, newdata)
   }
+
   componentDidMount() {
 
     makeCanvas().then(dataURL => {
+      if(this.props.isShare) return;
       this.setState({
         PREVIEW: dataURL
       })
     })
   }
+
   updateMyCanvas = () => {
+    if(this.props.isShare) return;
     this.props.updateAndSaveCanvas(this.props.canvas, this.state.PREVIEW, this.props.token)
   }
 
 
   render() {
     const { classes, canvas } = this.props;
-    const { anchorEl, NotesCards, infoAnchorEl } = this.state;
+    const { NotesCards } = this.state;
     const NoteColumn = column => (
       <Grid
         style={{
@@ -321,6 +186,8 @@ class Designer extends React.Component {
       >
         <Card className={classes.card}>
           <CardHeader
+          avatar={<Avatar>{column.category.split("-")[0][0]}</Avatar>}
+          subheader={column.category.split("-").join("\n")}
             action={
               <IconButton
                 onClick={() => {
@@ -339,7 +206,6 @@ class Designer extends React.Component {
                   style={getDroppableStyle(snapshot.isDraggingOver)}
                   {...provided.droppableProps}
                 >
-                  {/* {provided.placeholder} */}
                   {_
                     .filter(NotesCards, { note_position: column.category })
                     .map((element, index) => (
@@ -360,121 +226,7 @@ class Designer extends React.Component {
                             key={element.note_id}
                             className={classes.paper}
                           >
-                            {console.log(NotesCards)}
-                            <Paper
-                              className={classes.paper}
-                              style={{ backgroundColor: element.note_color,borderStyle:"solid",borderColor:Boolean(element.note_rating)?"green":"red" }}
-                            >
-                              <Input
-                                type="text"
-                                style={{ overflowY: "hidden"}}
-                                disableUnderline={true}
-                                fullWidth
-                                value={element.note_headline}
-                                placeholder="Note headline"
-
-                                onClick={this.handleNoteHelpClose}
-                                onChange={event =>
-                                  this.handleNoteDescriptionChange(
-                                    element.note_id,
-                                    "note_headline",
-                                    event
-                                  )
-                                }
-                              />
-                              <Input
-                                value={element.note_description}
-                                fullWidth
-                                onClick={this.handleNoteHelpClose}
-                                className={classes.resize}
-                                placeholder="Note Description"
-                                multiline
-                                onChange={event =>
-                                  this.handleNoteDescriptionChange(
-                                    element.note_id,
-                                    "note_description",
-                                    event
-                                  )
-                                }
-                              />
-                              <CardActions
-                                className={classes.actions}
-                                disableActionSpacing
-                              >
-                                <IconButton
-                                  aria-label="ColorLens"
-                                  onClick={event =>
-                                    this.handleExpandColorsClick(element.note_id, event)
-                                  }
-                                >
-                                  <ColorLensIcon />
-                                </IconButton>
-
-                                <IconButton
-                                  aria-label="ColorLens"
-                                  onClick={(event) =>
-                                    this.handleExpandInfoClick(element.note_id, event)
-                                  }
-                                >
-                                  <InfoIcon />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() =>
-                                    this.handleDeleteNote(element.note_id)
-                                  }
-                                  className={classes.expand}
-                                  aria-label="Add to Deletes"
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </CardActions>
-                              <Popover
-                                anchorEl={infoAnchorEl}
-                                open={Boolean(element.note_info_expanded)}
-                                onClose={() => this.handleExpandInfoClick(element.note_id, null)}
-                              >
-                                <div
-                                  style={{ width: "100%", padding: 10 }}
-                                >
-
-                                  <Typography variant="caption"> Made By {element.note_author}</Typography>
-                                  <Typography variant="caption"> Last Edited :{timeago().format(element.note_lastEdited)}</Typography>
-                                </div>
-                              </Popover>
-                              <Popover
-                                anchorEl={anchorEl}
-                                style={{ width: "100%" }}
-                                open={Boolean(element.expanded)}
-                                onClose={() => this.handleExpandColorsClick(element.note_id, null)}
-
-                              >
-                                <div style={{ width: "100%", padding: 10 }}
-                                >
-
-                                  {BeautifulColors.map(e => {
-                                    return (
-                                      <Button
-                                        mini
-                                        key={e}
-                                        style={{
-                                          backgroundColor: e,
-                                          maxHeight: "10px",
-                                          maxWidth: "10px"
-                                        }}
-                                        onClick={() =>
-                                          this.handleNoteColorChange(
-                                            element.note_id,
-                                            e
-                                          )
-                                        }
-                                      >
-
-                                      </Button>
-                                    );
-                                  })}
-                                </div>
-                              </Popover>
-                            </Paper>
+                            <CanvasNote isShare={this.props.isShare} Note={element} />
                           </div>
                         )}
                       </Draggable>
@@ -489,70 +241,6 @@ class Designer extends React.Component {
     return (
       <div id="preview_canvas">
         {!canvas && <Typography >No Canvas to display! Select one from your Dashboard</Typography>}
-        {canvas &&
-          <Grid container spacing={8} style={{ backgroundColor: "#4ebdd4", padding: "5px" }}>
-            <Grid container item xs={8}>
-              <Grid item xs={12}>
-
-                <FormControl>
-                  <InputLabel htmlFor="canvas_name">Project Name</InputLabel>
-                  <Input
-                    value={canvas.canvas_name}
-                    id="canvas_name"
-                    className={classes.input}
-                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_name")}
-                    inputProps={{
-                      'aria-label': 'Description',
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-
-                <FormControl fullWidth>
-                  <InputLabel htmlFor="canvas_description">Project Description</InputLabel>
-                  <Input
-                    value={canvas.canvas_description}
-                    id="canvas_description"
-                    className={classes.input}
-                    onChange={(e) => this.handleCanvasDescriptionChange(e, "canvas_description")}
-                    inputProps={{
-                      'aria-label': 'Description',
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Grid item xs={4} container spacing={8}>
-              <Grid item xs={12}>
-                <Typography variant="headline">Team Members</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Input
-                  value={this.state.newTeamMate}
-                  placeholder="Add another Collaborator"
-                  id="teams"
-                  className={classes.input}
-                  onChange={(e) => this.setState({ newTeamMate: e.target.value })}
-                  inputProps={{
-                    'aria-label': 'Description',
-                  }}
-                  endAdornment={<InputAdornment position="end">
-                    <IconButton onClick={() => this.handleCanvasDescriptionChange(this.state.newTeamMate, "canvas_team")}>
-                      <AddIcon />
-                    </IconButton>
-                  </InputAdornment>}
-                />
-              </Grid>
-              <Grid item xs={12} spacing={8}>
-
-                {canvas.canvas_team.map(
-                  (member, index) => { return <Chip key={index} label={member.user} color="primary" onDelete={null} avatar={<Avatar>{member.role[0]}</Avatar>} variant="outlined" /> }
-                )}
-              </Grid>
-            </Grid>
-          </Grid>}
         {canvas &&
           <DragDropContext onDragEnd={this.onDragEnd}>
             <Grid container alignItems="stretch">
@@ -580,46 +268,6 @@ class Designer extends React.Component {
             {this.props.isSaving ? <CircularProgress /> : <SaveIcon />}
           </Button>
         }
-        <Popper
-          placement="right"
-          disablePortal={true}
-          modifiers={{
-            flip: {
-              enabled: true
-            },
-            preventOverflow: {
-              enabled: false,
-              boundariesElement: "scrollParent"
-            },
-            arrow: {
-              enabled: true,
-              element: "arrowRef"
-            }
-          }}
-          open={Boolean(this.state.popperAnchorEl)}
-          anchorEl={this.state.popperAnchorEl}
-          onClose={this.handleNoteHelpClose}
-        >
-          {this.state.lookingForBetterText ? (
-            <Chip
-              color="secondary"
-              avatar={<AddIcon size={25} />}
-              label={"Working on !!"}
-            />
-          ) : (
-            this.state.suggestion_result&&<Chip
-                color="secondary"
-                deleteIcon={<AddIcon />}
-                onDelete={this.handleNoteHelpTick}
-                avatar={
-                  <Avatar>
-                    <FaceIcon />
-                  </Avatar>
-                }
-                label={this.state.suggestion_result}
-              />
-            )}
-        </Popper>
       </div>
     );
   }

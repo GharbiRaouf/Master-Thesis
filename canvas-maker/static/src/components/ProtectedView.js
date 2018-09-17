@@ -32,7 +32,7 @@ class ProtectedView extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{width:"100%"}}>
                 {!this.props.loaded
                     ? <h1>Loading data...</h1>
                     :

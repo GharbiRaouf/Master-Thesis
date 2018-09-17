@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
 import PropTypes from 'prop-types';
 import * as actionCreators from '../actions/auth';
 import { validate_token } from "../utils/http_functions"
@@ -67,7 +66,7 @@ export function requireAuthentication(Component) {
 
         render() {
             return (
-                <div>
+                <div style={{width:"100%"}}>
                     {this.props.isAuthenticated && this.state.loaded_if_needed
                         ? <Component {...this.props} />
                         : null

@@ -1,6 +1,6 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid'
-import { Card, CardMedia, CardActions, Typography, Button, Modal } from '@material-ui/core';
+import { Card, CardActions, Typography, Button, Modal } from '@material-ui/core';
 import Register from "../RegisterView"
 import { bindActionCreators } from 'redux';
 // import { withRouter } from 'react-router-dom'

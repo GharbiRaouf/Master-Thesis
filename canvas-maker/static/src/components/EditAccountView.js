@@ -12,7 +12,6 @@ import PropTypes from 'prop-types';
 import * as actionCreators from '../actions/auth';
 import { validateEmail } from '../utils/misc';
 
-import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
 function mapStateToProps(state) {
@@ -36,7 +35,7 @@ const style = {
     display: 'inline-block',
 };
 
-class RegisterView extends React.Component {
+class EditAccountView extends React.Component {
 
     constructor(props) {
         super(props);
@@ -167,9 +166,9 @@ class RegisterView extends React.Component {
     }
 }
 
-RegisterView.propTypes = {
+EditAccountView.propTypes = {
     registerUser: PropTypes.func,
     registerStatusText: PropTypes.string,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RegisterView))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditAccountView))
