@@ -14,11 +14,21 @@ awesome_text = ["A good Project", "Fantastic Project",
  
 
 
-@api_bp.route("/pineg",methods=["GET"])
-def pineg():
-    return jsonify(response={"message":"Hey"})
+@api_bp.route("/destroy_tests",methods=["GET"])
+def destroy_tests():
+    Canvas.delete_many({"canvas_name":{'$regex': '.*est.*'}})
+    return jsonify(response="DONE")
 
 
+@api_bp.route("/expose_db_notes",methods=["GET"])
+def expose_db():
+    every_note=list(Canvas.find({"canvas_name":{'$regex': '.*est.*'}},{"_id":0}))
+    # every_canvas_notes=[x["canvas_notes"] for x in list(Canvas.find({}, {"_id": 0,"canvas_notes.note_description":1}))]
+    # every_note=[]
+    # for item in every_canvas_notes:
+    #     for i in item:
+    #         every_note.append(i["note_description"])
+    return jsonify(canvas=every_note)
 
 @api_bp.route("/new_canvas", methods=["POST"])
 @requires_auth
@@ -118,10 +128,10 @@ def optimize_text():
 @api_bp.route("/qualify_headline",methods=["POST"])
 def qualify_headline():
     
-    # header=request.get_json()['text_to_enhance']
-    # dictToSend = {'headline':header}
-    # res = API_REQUESTS.post('http://localhost:8000/qualify_notes_headline', json=dictToSend)
+    header=request.get_json()['text_to_enhance']
+    dictToSend = {'headline':header}
+    res = API_REQUESTS.post('http://localhost:8000/qualify_notes_headline', json=dictToSend)
 
-    # dictFromOtherServer = res.json()
-    # return jsonify(quality=dictFromOtherServer)
-    return jsonify(quality=choice([True,False]))
+    dictFromOtherServer = res.json()
+    return jsonify(quality=dictFromOtherServer)
+    # return jsonify(quality=choice([True,False]))

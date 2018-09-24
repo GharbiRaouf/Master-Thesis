@@ -40,7 +40,6 @@ export function requireAuthentication(Component) {
                 if (!token) {
                     return props.redirectToRoute('/home');
                 } else {
-
                     validate_token(token)
                         .then(res => {
                             if (res.status === 200) {
@@ -52,9 +51,8 @@ export function requireAuthentication(Component) {
                                 return props.redirectToRoute('/home');
                             }
                         }).catch(error => {
-                           //if (error.response && error.response.status === 403){
-                                return props.redirectToRoute('/home');
-                           //}
+                            return props.redirectToRoute('/home');
+
                         });
                 }
             } else {

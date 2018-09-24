@@ -1,4 +1,4 @@
-import { FETCH_CANVAS, LOAD_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, UPDATE_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, DELETE_CANVAS_DONE, ON_DELETE_CANVAS, MAKE_ANONYMOUS_CANVAS } from '../constants';
+import { FETCH_CANVAS, LOAD_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, UPDATE_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, DELETE_CANVAS_DONE, ON_DELETE_CANVAS, MAKE_ANONYMOUS_CANVAS, HANDLE_CANVAS_HELPER } from '../constants';
 import { createReducer } from '../utils/misc';
 import nanoid from 'nanoid'
 const initialState = {
@@ -9,7 +9,8 @@ const initialState = {
     loaded: false,
     isSaving: false,
     onDelete:false,
-    apiResponse:null
+    apiResponse:null,
+    canvas_helper:true,
 };
 
 export default createReducer(initialState, {
@@ -76,5 +77,8 @@ export default createReducer(initialState, {
             'canvas_notes': null,
             'canvas_lastUpdate': Date.now()
         }
+    }),
+    [HANDLE_CANVAS_HELPER]: (state) => Object.assign({}, state, {
+        canvas_helper: !state.canvas_helper
     }),
 });

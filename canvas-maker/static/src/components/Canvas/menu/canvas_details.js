@@ -82,52 +82,6 @@ class CanvasDetails extends React.Component {
                             label="Canvas Description"
                         />
                     </Grid>
-                    {/* <Grid item xs={12}>
-                        <Input
-                            fullWidth
-                            value={this.state.newTeamMate}
-                            placeholder="Tags"
-                            id="teams"
-                            className={classes.input}
-                            onChange={e => this.setState({ newTeamMate: e.target.value })}
-                            inputProps={{
-                                "aria-label": "Description"
-                            }}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        onClick={() =>
-                                            this.handleCanvasDescriptionChange(
-                                                this.state.newTeamMate,
-                                                "canvas_team"
-                                            )
-                                        }
-                                    >
-                                        <AddIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                        />
-                    </Grid>
-                    <Grid item xs={12} spacing={8}>
-                        {[
-                            {
-                                user: "Canvas",
-                                role: "Admin"
-                            }
-                        ].map((member, index) => {
-                            return (
-                                <Chip
-                                    key={index}
-                                    label={member.user}
-                                    color="primary"
-                                    onDelete={null}
-                                    avatar={<Avatar>{member.role[0]}</Avatar>}
-                                    variant="outlined"
-                                />
-                            );
-                        })}
-                    </Grid> */}
                 </Grid>
             </Paper>
         );

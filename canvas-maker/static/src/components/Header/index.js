@@ -20,6 +20,8 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/auth';
+import * as canvasActionCreators from '../../actions/canvas';
+import CanvasHelper from '../Canvas/CanvasHelper';
 
 function mapStateToProps(state) {
     return {
@@ -31,6 +33,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return bindActionCreators({
+        ...canvasActionCreators,
         ...actionCreators, changePage: path => push(path)
     }, dispatch);
 }
@@ -49,7 +52,7 @@ const styles = theme => ({
     drawerPaper: {
         //position: 'relative',
         width: drawerWidth,
-        zIndex: theme.zIndex.drawer +5
+        zIndex: theme.zIndex.drawer + 5
     },
     drawerHeader: {
         display: 'flex',
@@ -133,7 +136,12 @@ class Header extends React.Component {
                                     Logout
                             </MenuItem>
                             </div>
-                    }</List>
+                    }
+
+                    <MenuItem onClick={()=>this.props.ShowCanvasHelper()}>
+                        Tutorial
+                    </MenuItem>
+                </List>
             </div>
         )
 
@@ -201,6 +209,7 @@ class Header extends React.Component {
                     </Toolbar>
                 </AppBar>
                 {before}
+                <CanvasHelper/>
             </div>
         );
     }

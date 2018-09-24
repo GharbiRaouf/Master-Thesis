@@ -1,4 +1,4 @@
-import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, ON_DELETE_CANVAS, DELETE_CANVAS_DONE, MAKE_ANONYMOUS_CANVAS } from '../constants/index';
+import { UPDATE_CANVAS, FETCH_USER_CANVAS, LOAD_USER_CANVAS, FETCH_CANVAS, LOAD_CANVAS, SAVE_CANVAS, SAVE_CANVAS_DONE, MUST_SAVE_CANVAS, ON_DELETE_CANVAS, DELETE_CANVAS_DONE, MAKE_ANONYMOUS_CANVAS, HANDLE_CANVAS_HELPER } from '../constants/index';
 import { parseJSON } from '../utils/misc';
 import { create_new_canvas, load_all_user_canvas, get_canvas_by_id, post_canvas_update, delete_canvas } from '../utils/http_functions';
 import { logoutAndRedirect } from './auth';
@@ -166,5 +166,11 @@ export function makeAnonymousCanvas(canvas_type) {
     return {
         type: MAKE_ANONYMOUS_CANVAS,
         payload:canvas_type
+    }
+}
+
+export function ShowCanvasHelper(){
+    return{
+        type:HANDLE_CANVAS_HELPER,
     }
 }

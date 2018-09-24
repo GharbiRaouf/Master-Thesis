@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/data';
 import PropTypes from 'prop-types';
-
+import land_map from "./Canvas/assets/landing.png"
 function mapStateToProps(state) {
     return {
         data: state.data,
@@ -32,14 +32,12 @@ class ProtectedView extends React.Component {
 
     render() {
         return (
-            <div style={{width:"100%"}}>
+            <div style={{ width: "100%" }}>
                 {!this.props.loaded
                     ? <h1>Loading data...</h1>
                     :
                     <div>
-                        <h1>Welcome back,
-                            {this.props.userEmail}!</h1>
-                            <h3>{"<-"} Head to your Dashboard!</h3>
+                        <img src={land_map} alt="SiteMap" />
                     </div>
                 }
             </div>

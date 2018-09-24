@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Typography, Avatar } from "@material-ui/core";
+import { Typography, Avatar, Hidden } from "@material-ui/core";
 
 
 //Misc
@@ -62,7 +62,7 @@ const makeCanvas = () => {
   });
 };
 
-class Designer extends React.Component {
+class CanvasModel extends React.Component {
   constructor(props) {
     super(props);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -186,8 +186,8 @@ class Designer extends React.Component {
       >
         <Card className={classes.card}>
           <CardHeader
-          avatar={<Avatar>{column.category.split("-")[0][0]}</Avatar>}
-          subheader={column.category.split("-").join("\n")}
+          avatar={<Hidden> <Avatar>{column.category.split("-")[0][0]}</Avatar></Hidden>}
+          subheader={<Typography variant="subheading">{column.category.split("-").join("\n")}</Typography>}
             action={
               <IconButton
                 onClick={() => {
@@ -248,7 +248,7 @@ class Designer extends React.Component {
                 if (!column.isCompound) return NoteColumn(column);
                 else
                   return (
-                    <Grid key={column.id} item xs={2} container>
+                    <Grid key={column.id} item xs={column.width} container>
                       {column.items.map(subCol => {
                         return (
                           <div style={{ width: "100%" }} key={subCol.id}>
@@ -273,11 +273,11 @@ class Designer extends React.Component {
   }
 }
 
-Designer.propTypes = {
+CanvasModel.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
 export default withRouter(compose(
   withStyles(CanvasModelStyles),
   connect(mapStateToProps, mapDispatchToProps),
-)(Designer));
+)(CanvasModel));
