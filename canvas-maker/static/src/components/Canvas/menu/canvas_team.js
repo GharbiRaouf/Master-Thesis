@@ -12,19 +12,22 @@ import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import HowToRegIcon from "@material-ui/icons/ThumbUp";
+import StarIcon from "@material-ui/icons/Star";
+import StarBorderIcon from "@material-ui/icons/StarBorder";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
 import Grid from "@material-ui/core/Grid";
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { canvasTeamStyles } from "../assets/canvasstyle";
+
+import _ from "lodash"
 
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../../actions/canvas';
-import { SERVER_URL } from "../../../constants/utils";
 
 
 
@@ -46,29 +49,36 @@ function mapDispatchToProps(dispatch) {
 
 
 class CanvasDetails extends React.Component {
-    state = { newTeamMate:"" };
+    state = { newTeamMate: "" };
     handleCanvasDescriptionChange = (event, field) => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         let newdata = ''
         if (field === "canvas_team") {
-          newdata = Array.from(this.props.canvas.canvas_team)
-          newdata.push({ "user": event, "role": "partner" })
-          this.setState({
-            newTeamMate: ""
-          })
+            newdata = Array.from(this.props.canvas.canvas_team)
+            newdata.push({ "user": event, "role": "partner" })
+            this.setState({
+                newTeamMate: ""
+            })
         }
-        else newdata = event.target.value;
         this.props.mustSaveCanvas()
         this.props.updateCanvas(field, newdata)
-      }
-    
-    handleExpandClick = () => {
-        this.setState(state => ({ expanded: !state.expanded }));
-    };
+    }
 
+    handleSecondaryAction = (action, index) => {
+        let newMemberShip = Array.from(this.props.canvas.canvas_team)
+        console.log(newMemberShip, action, index);
+
+        if (action === "Make_Admin") newMemberShip[index].role = "creator"
+        if (action === "Make_Partner") newMemberShip[index].role = "partner"
+        if (action === "Remove_Partner") newMemberShip.splice(index, 1)
+
+        this.props.updateCanvas("canvas_team", newMemberShip)
+        this.props.mustSaveCanvas()
+
+    }
     render() {
         const { classes } = this.props;
-
+        const isCreator = _.findIndex(this.props.canvas.canvas_team, { 'role': 'creator', 'user': this.props.userEmail }) > -1
         return (
             <Paper elevation={0} className={classes.card}>
                 <Typography variant="display1">Canvas Team</Typography>
@@ -100,8 +110,8 @@ class CanvasDetails extends React.Component {
                             }
                         />
                     </Grid>
-                    <Grid item xs={12} spacing={8}>
-                        <List dense>
+                    <Grid item xs={12} >
+                        <List component="nav">
                             {this.props.canvas.canvas_team.map((member, index) => {
                                 return (
                                     <ListItem
@@ -110,17 +120,34 @@ class CanvasDetails extends React.Component {
                                         button
                                         className={classes.listItem}
                                     >
+                                        <Tooltip title={"Role: "+_.startCase(member.role)+"\n"}>
                                         <Avatar>{member.role[0]}</Avatar>
-                                        <ListItemText primary={member.user} />
+                                        </Tooltip>
 
-                                        <ListItemSecondaryAction>
-                                            <IconButton aria-label="Delete">
-                                                <HowToRegIcon />
-                                            </IconButton>
-                                            <IconButton aria-label="Delete">
-                                                <CloseIcon />
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
+                                        <ListItemText style={{ minWidth: "70%" }} primary={member.user} />
+                                        {(isCreator && this.props.userEmail !== member.user) &&
+                                            <ListItemSecondaryAction>
+                                                {_.lowerCase(member.role) === "creator" ?
+                                                    <Tooltip title="Make Admin">
+                                                        <IconButton onClick={() => this.handleSecondaryAction("Make_Partner", index)}>
+                                                            <StarIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    :
+                                                    <Tooltip title="Make Member">
+                                                        <IconButton onClick={() => this.handleSecondaryAction("Make_Admin", index)}>
+                                                            <StarBorderIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                }
+                                                <Tooltip title="Remove Partner">
+
+                                                    <IconButton onClick={() => this.handleSecondaryAction("Remove_Partner", index)}>
+                                                        <CloseIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+
+                                            </ListItemSecondaryAction>}
                                     </ListItem>
                                 );
                             })}

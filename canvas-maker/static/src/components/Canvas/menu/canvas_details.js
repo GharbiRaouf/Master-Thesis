@@ -3,25 +3,17 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 
 import Paper from "@material-ui/core/Paper";
-import Chip from "@material-ui/core/Chip";
-import Input from "@material-ui/core/Input";
-import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import AddIcon from "@material-ui/icons/Add";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 
 import { canvasDetailsStyles } from "../assets/canvasstyle";
-import { canvasTeamStyles } from "../assets/canvasstyle";
 
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../../actions/canvas';
-import { SERVER_URL } from "../../../constants/utils";
 
 
 

@@ -35,10 +35,10 @@ import * as actionCreators from '../../actions/canvas';
 
 
 
-const suggestion = {
-    "note_headline": "Something better",
-    "note_description": "Better description"
-}
+// const suggestion = {
+//     "note_headline": "Something better",
+//     "note_description": "Better description"
+// }
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
@@ -61,81 +61,103 @@ export class CanvasNote extends React.Component {
         note_headline_popper_anchor: null,
         note_description_popper_anchor: null,
 
-        looking_for_note_headline_rate: false,
-        looking_for_note_description_rate: false,
+        fetching_note_headline_rate: false,
+        fetching_note_description_rate: false,
+
+        received_note_headline_rate: false,
+        received_note_description_rate: false,
 
         result_suggestion_for_headline: null,
         result_suggestion_for_description: null,
     };
-    handle_open_headline_popper = (event, result) => {
-        if(this.props.isShare) return;
+    handle_open_headline_popper = (event) => {
+        if (this.props.isShare) return;
         this.setState({
             note_headline_popper_anchor: event.currentTarget,
-            looking_for_note_headline_rate: true,
-            result_suggestion_for_headline: result,
+            fetching_note_headline_rate: false,
+            received_note_headline_rate: false,
+            result_suggestion_for_headline: null,
+
         })
     }
 
-    handle_open_description_popper = (event, result) => {
-        if(this.props.isShare) return;
+    handle_open_description_popper = (event) => {
+        if (this.props.isShare) return;
         this.setState({
             note_description_popper_anchor: event.currentTarget,
-            looking_for_note_description_rate: true,
-            result_suggestion_for_description: result,
+            fetching_note_description_rate: false,
+            received_note_description_rate: false,
+            result_suggestion_for_description: null,
         })
     }
 
     handle_close_headline_popper = () => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         this.setState({
             note_headline_popper_anchor: null,
-            looking_for_note_headline_rate: false,
-            result_suggestion_for_headline: this.props.Note.note_color,
+            fetching_note_headline_rate: false,
+            received_note_headline_rate: false,
+            result_suggestion_for_headline: this.props.Note.note_color
         })
     }
 
     handle_close_description_popper = () => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         this.setState({
             note_description_popper_anchor: null,
-            looking_for_note_description_rate: false,
-            result_suggestion_for_description: "",
+            fetching_note_description_rate: false,
+            received_note_description_rate: false,
+            result_suggestion_for_description: ""
         })
     }
 
     handle_confirm_headline_suggestion = () => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         this.handle_close_headline_popper();
     }
 
     handle_confirm_description_suggestion = () => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         this.handleNoteDescriptionChange(this.props.Note.note_id, "note_description", this.state.result_suggestion_for_description);
         this.handle_close_description_popper();
     }
 
     start_enhancing_headline_field = () => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
+        this.setState({
+            fetching_note_headline_rate: true,
+            received_note_headline_rate: false,
+            result_suggestion_for_headline: this.props.Note.note_color
 
+        })
         Axios.post("/api/v1/qualify_headline", {
-            text_to_enhance: "fieldUpdate"
+            text_to_enhance: this.props.Note.note_headline
         }).then(response => {
             this.setState({
-                result_suggestion_for_headline: response.data.quality,
-                looking_for_note_headline_rate:false,
+                fetching_note_headline_rate: false,
+                received_note_headline_rate: true,
+                result_suggestion_for_headline: response.data.quality.quality,
             })
         })
     }
     start_enhancing_description_field = () => {
-        if(this.props.isShare) return;
+        
+        if (this.props.isShare) return;
+        this.setState({
+            fetching_note_description_rate: true,
+            received_note_description_rate: false,
+            result_suggestion_for_description: this.props.Note.note_color
+
+        })
         //API CALL
         // const
         Axios.post("/api/v1/optimize_text", {
             text_to_enhance: this.props.Note.note_description
         }).then(response => {
             this.setState({
-                result_suggestion_for_description: response.data,
-                looking_for_note_description_rate: false,
+                fetching_note_description_rate: false,
+                received_note_description_rate: true,
+                result_suggestion_for_description: response.data.suggestions,
 
             })
         })
@@ -144,7 +166,7 @@ export class CanvasNote extends React.Component {
 
     //#region Notes Functions
     handleNoteDescriptionChange = (id, field, event) => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         const { NotesCards } = this.state;
         let fieldUpdate = event.target ? event.target.value : event
         for (var i in NotesCards) {
@@ -156,16 +178,15 @@ export class CanvasNote extends React.Component {
         }
         this.props.updateCanvas("canvas_notes", NotesCards)
         this.props.mustSaveCanvas();
-        if (field === "note_headline") this.setState({
-            note_headline_popper_anchor: event.currentTarget
-        })
-        if (field === "note_description") this.setState({
-            note_description_popper_anchor: event.currentTarget
-        })
+        // if (field === "note_headline") this.setState({
+        //     note_headline_popper_anchor: event.currentTarget
+        // })
+        // if (field === "note_description") this.setState({
+        //     note_description_popper_anchor: event.currentTarget
+        // })
     };
-
     handleDeleteNote = index => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         const { NotesCards } = this.state;
         let id = _.findIndex(NotesCards, { note_id: index });
         NotesCards.splice(id, 1);
@@ -177,7 +198,7 @@ export class CanvasNote extends React.Component {
         // });
     };
     handleExpandColorsClick = (id, event) => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         const { NotesCards } = this.state;
         for (var i in NotesCards) {
             if (NotesCards[i].note_id === id) {
@@ -191,9 +212,8 @@ export class CanvasNote extends React.Component {
             // NotesCards
         });
     };
-
     handleExpandInfoClick = (id, event) => {
-        if(this.props.isShare) return;
+        if (this.props.isShare) return;
         const { NotesCards } = this.state;
         for (var i in NotesCards) {
             if (NotesCards[i].note_id === id) {
@@ -223,8 +243,8 @@ export class CanvasNote extends React.Component {
             // NotesCards
         });
     }
-
     //#endregion Notes Functions
+
 
     render() {
         const {
@@ -232,20 +252,21 @@ export class CanvasNote extends React.Component {
             infoAnchorEl,
             note_headline_popper_anchor,
             note_description_popper_anchor,
-            looking_for_note_headline_rate,
-            looking_for_note_description_rate,
+            received_note_headline_rate,
+            received_note_description_rate,
             result_suggestion_for_headline,
-            result_suggestion_for_description } = this.state;
+            result_suggestion_for_description,} = this.state;
 
         const { Note, classes } = this.props
         return (
             <div>
                 <Paper
                     className={classes.paper}
-                    style={{ 
-                        backgroundColor: Note.note_color, 
-                        borderStyle: "solid", 
-                        borderColor: Boolean(result_suggestion_for_headline) ? "green" : Note.note_color }}
+                    style={{
+                        backgroundColor: Note.note_color,
+                        borderStyle: "solid",
+                        borderColor: Boolean(result_suggestion_for_headline) ? result_suggestion_for_headline : Note.note_color
+                    }}
                 >
                     <Input
                         disabled={this.props.isShare}
@@ -256,7 +277,7 @@ export class CanvasNote extends React.Component {
                         value={Note.note_headline}
                         placeholder="Note headline"
 
-                        onClick={this.handleNoteHelpClose}
+                        onClick={this.handle_open_headline_popper}
                         onChange={event =>
                             this.handleNoteDescriptionChange(
                                 Note.note_id,
@@ -269,7 +290,7 @@ export class CanvasNote extends React.Component {
                         disabled={this.props.isShare}
                         value={Note.note_description}
                         fullWidth
-                        onClick={this.handleNoteHelpClose}
+                        onClick={this.handle_open_description_popper}
                         className={classes.resize}
                         placeholder="Note Description"
                         multiline
@@ -336,7 +357,7 @@ export class CanvasNote extends React.Component {
                         >
 
                             {BeautifulColors.map(e => {
-                                if(this.props.isShare) return;
+                                if (this.props.isShare) return null;
                                 return (
                                     <Button
                                         mini
@@ -360,14 +381,8 @@ export class CanvasNote extends React.Component {
                         </div>
                     </Popover>
                 </Paper>
-
-                {/* 
-    note_headline_popper_anchor
-    looking_for_note_headline_rate
-    result_suggestion_for_headline 
-                */}
                 <Popper
-                    disablePortal
+                    style={{maxWidth:150,zIndex:2000}}
                     placement="right"
                     disablePortal={true}
                     modifiers={{
@@ -385,16 +400,56 @@ export class CanvasNote extends React.Component {
                     }}
                     open={Boolean(note_headline_popper_anchor)}
                     anchorEl={note_headline_popper_anchor}
-                // onClose={this.handle_close_headline_popper}
                 >
+                    {
+                        // note_headline_popper_anchor
+                        // fetching_note_headline_rate
+                        // received_note_headline_rate
+                        // result_suggestion_for_headline
+                    }
                     <Chip
                         color="secondary"
-                        onDelete={looking_for_note_headline_rate ? this.handle_confirm_headline_suggestion : this.start_enhancing_headline_field}
-                        deleteIcon={<IconButton>{looking_for_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                        onDelete={ received_note_headline_rate?this.handle_confirm_headline_suggestion:this.start_enhancing_headline_field }
+                        deleteIcon={<IconButton>{ received_note_headline_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        label={looking_for_note_headline_rate ? result_suggestion_for_headline ? "This is a good Note" : "This needs adjustment" : "Do you want to verify this?"}
+                        label={!received_note_headline_rate ? "Do you want to verify this?" : (result_suggestion_for_headline === "green" ? "This is a good Note" : "This needs adjustment")}
                     />
 
+
+                </Popper>
+                <Popper
+                    style={{maxWidth:150,zIndex:2000}}
+                    placement="right"
+                    disablePortal={true}
+                    modifiers={{
+                        flip: {
+                            enabled: true
+                        },
+                        preventOverflow: {
+                            enabled: false,
+                            boundariesElement: "scrollParent"
+                        },
+                        arrow: {
+                            enabled: true,
+                            element: "arrowRef"
+                        }
+                    }}
+                    open={Boolean(note_description_popper_anchor)}
+                    anchorEl={note_description_popper_anchor}
+                >
+                    {
+                        // note_description_popper_anchor
+                        // fetching_note_description_rate
+                        // received_note_description_rate
+                        // result_suggestion_for_description
+                    }
+                    <Chip
+                        color="primary"
+                        onDelete={ received_note_description_rate?this.handle_confirm_description_suggestion:this.start_enhancing_description_field }
+                        deleteIcon={<IconButton>{ received_note_description_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
+                        avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
+                        label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description )}
+                    />
 
 
                 </Popper>

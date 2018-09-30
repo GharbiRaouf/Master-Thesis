@@ -77,6 +77,7 @@ export function updateAndSaveCanvas(canvas, newPreview, token) {
         if (token === null) {
             dispatch(saveCanvasDone());
         }
+        canvas.canvas_lastUpdate=Date.now()
         post_canvas_update(canvas, token).then((response) => {
             return parseJSON(response)
 

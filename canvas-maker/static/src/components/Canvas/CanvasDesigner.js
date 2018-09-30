@@ -116,7 +116,7 @@ class Designer extends React.Component {
 
                 <Drawer
                   variant="permanent"
-                  style={{ minWidth:Boolean(item_to_display)?400:0}}
+                  style={{ minWidth:Boolean(item_to_display)?300:0}}
                   classes={{
                     paper: classes.subDrawerPaper
                   }}
