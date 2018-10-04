@@ -14,6 +14,9 @@ import SaveIcon from "@material-ui/icons/Save";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Typography, Avatar, Hidden } from "@material-ui/core";
 
+import Snackbar from "@material-ui/core/Snackbar";
+import CloseIcon from "@material-ui/icons/Close";
+import StarRatings from "react-star-ratings";
 
 //Misc
 import canvas_style from "../../constants/canvasdesign";
@@ -74,6 +77,7 @@ class CanvasModel extends React.Component {
       to_suggest_id: null,
       suggestion_field: null,
       suggestion_result: null,
+      openRate:false,
     };
 
   }
@@ -81,7 +85,7 @@ class CanvasModel extends React.Component {
     this.props.changePage(route)
   }
   onDragEnd(result) {
-    if(this.props.isShare) return;
+    if (this.props.isShare) return;
 
     let NotesCards = Array.from(this.state.NotesCards);
 
@@ -119,9 +123,9 @@ class CanvasModel extends React.Component {
   }
 
   handleAddNote = note_position => {
-    if(this.props.isShare) return;
+    if (this.props.isShare) return;
     console.log("Heyy");
-    
+
     const { NotesCards } = this.state;
     NotesCards.push({
       note_id: nanoid(),
@@ -140,7 +144,7 @@ class CanvasModel extends React.Component {
   };
 
   handleCanvasDescriptionChange = (event, field) => {
-    if(this.props.isShare) return;
+    if (this.props.isShare) return;
     let newdata = ''
     if (field === "canvas_team") {
       newdata = Array.from(this.props.canvas.canvas_team)
@@ -157,7 +161,7 @@ class CanvasModel extends React.Component {
   componentDidMount() {
 
     makeCanvas().then(dataURL => {
-      if(this.props.isShare) return;
+      if (this.props.isShare) return;
       this.setState({
         PREVIEW: dataURL
       })
@@ -165,13 +169,24 @@ class CanvasModel extends React.Component {
   }
 
   updateMyCanvas = () => {
-    if(this.props.isShare) return;
+    if (this.props.isShare) return;
     this.props.updateAndSaveCanvas(this.props.canvas, this.state.PREVIEW, this.props.token)
   }
+  handleClickForRate = () => {
+    this.setState({ openRate: !this.state.openRate });
+  };
 
+  changeRating = (newRating) => {
+    this.setState({
+      rating: newRating
+    });
+    this.props.updateCanvas("canvas_rating", newRating)
+    this.props.updateAndSaveCanvas(this.props.canvas, this.state.PREVIEW, this.props.token)
+
+  };
 
   render() {
-    const { classes, canvas } = this.props;
+    const { classes, canvas, isShare } = this.props;
     const { NotesCards } = this.state;
     const NoteColumn = column => (
       <Grid
@@ -186,8 +201,8 @@ class CanvasModel extends React.Component {
       >
         <Card className={classes.card}>
           <CardHeader
-          avatar={<Hidden> <Avatar>{column.category.split("-")[0][0]}</Avatar></Hidden>}
-          subheader={<Typography variant="subheading">{column.category.split("-").join("\n")}</Typography>}
+            avatar={<Hidden> <Avatar>{column.category.split("-")[0][0]}</Avatar></Hidden>}
+            subheader={<Typography variant="subheading">{column.category.split("-").join("\n")}</Typography>}
             action={
               <IconButton
                 onClick={() => {
@@ -226,7 +241,7 @@ class CanvasModel extends React.Component {
                             key={element.note_id}
                             className={classes.paper}
                           >
-                            <CanvasNote isShare={this.props.isShare} Note={element} />
+                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} />
                           </div>
                         )}
                       </Draggable>
@@ -262,12 +277,48 @@ class CanvasModel extends React.Component {
             </Grid>
           </DragDropContext>
         }
+        {isShare && <Button variant="fab" onClick={this.handleClickForRate} className={classes.fab_btn} >Rate!</Button>}
+        {isShare && <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right"
+          }}
+          open={this.state.openRate}
+          autoHideDuration={6000}
+          onClose={this.handleCloseforRate}
+          ContentProps={{
+            "aria-describedby": "message-id"
+          }}
+          message={
+            <div>
+              <StarRatings
+                rating={this.state.rating}
+                starRatedColor="orange"
+                changeRating={this.changeRating}
+                numberOfStars={5}
+                name="rating"
+              />
+            </div>
+          }
+          action={[
+            <IconButton
+              key="close"
+              aria-label="Close"
+              color="inherit"
+              className={classes.close}
+              onClick={this.handleClickForRate}
+            >
+              <CloseIcon />
+            </IconButton>
+          ]}
+        />}
         {
           this.props.canvasMustSave &&
           <Button variant="fab" className={classes.fab} color="primary" onClick={() => this.updateMyCanvas()}>
             {this.props.isSaving ? <CircularProgress /> : <SaveIcon />}
           </Button>
         }
+
       </div>
     );
   }

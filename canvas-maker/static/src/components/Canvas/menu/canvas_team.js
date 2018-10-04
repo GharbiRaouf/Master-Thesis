@@ -128,13 +128,13 @@ class CanvasDetails extends React.Component {
                                         {(isCreator && this.props.userEmail !== member.user) &&
                                             <ListItemSecondaryAction>
                                                 {_.lowerCase(member.role) === "creator" ?
-                                                    <Tooltip title="Make Admin">
+                                                    <Tooltip title="Make Partner">
                                                         <IconButton onClick={() => this.handleSecondaryAction("Make_Partner", index)}>
                                                             <StarIcon />
                                                         </IconButton>
                                                     </Tooltip>
                                                     :
-                                                    <Tooltip title="Make Member">
+                                                    <Tooltip title="Make Admin">
                                                         <IconButton onClick={() => this.handleSecondaryAction("Make_Admin", index)}>
                                                             <StarBorderIcon />
                                                         </IconButton>

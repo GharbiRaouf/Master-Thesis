@@ -26,7 +26,6 @@ class NotesCollection(Collection):
         "note_description": str,
         "note_color": str,
         "note_status": str,
-        "note_rating": str
     }
 
     def __init__(self, db, *args, **kwargs):
@@ -45,10 +44,8 @@ class CanvasCollection(Collection):
         'canvas_preview': str,
         'canvas_notes': list,
         'canvas_visibility': str, 
-        # canvas_notes:[{
-        #     version:""
-        #     notes:[]
-        # }]
+        'canvas_rating': str,
+        'canvas_ratings': list,
         'canvas_lastUpdate': str
     }
 

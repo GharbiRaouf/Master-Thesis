@@ -77,10 +77,13 @@ const styles = theme => ({
     img: {
         height: "80%",
         overflow: 'hidden',
-        width: '100%',
+        maxWidth: '100%',
         padding: theme.spacing.unit * 4,
-        backgroundColor:"grey"
-        
+        backgroundColor: "grey",
+        display: "block",
+        marginLeft: "auto",
+        marginRight: "auto"
+
     },
 });
 
@@ -140,16 +143,16 @@ class CanvasHelper extends React.Component {
                             activeStep={activeStep}
                             className={classes.mobileStepper}
                             nextButton={
-                                activeStep === maxSteps - 1?
-                                <Button color="primary" variant="raised" size="small" onClick={this.handleCloseCanvasHelper} >
-                                    Finish
+                                activeStep === maxSteps - 1 ?
+                                    <Button color="primary" variant="raised" size="small" onClick={this.handleCloseCanvasHelper} >
+                                        Finish
                                     {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-                                </Button>
-                                :
-                                <Button size="small" onClick={this.handleNext} >
-                                    Next
+                                    </Button>
+                                    :
+                                    <Button size="small" onClick={this.handleNext} >
+                                        Next
                                     {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-                                </Button>
+                                    </Button>
                             }
                             backButton={
                                 <Button size="small" onClick={this.handleBack} disabled={activeStep === 0}>

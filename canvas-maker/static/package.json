@@ -46,6 +46,7 @@
     "react-dom": "^16.3.0",
     "react-router-dom": "^4.3.1",
     "react-router-redux": "^5.0.0-alpha.9",
+    "react-star-ratings": "^2.3.0",
     "react-tap-event-plugin": "^3.0.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",

@@ -257,7 +257,7 @@ export class CanvasNote extends React.Component {
             result_suggestion_for_headline,
             result_suggestion_for_description,} = this.state;
 
-        const { Note, classes } = this.props
+        const { Note, classes,isSmart } = this.props
         return (
             <div>
                 <Paper
@@ -277,7 +277,7 @@ export class CanvasNote extends React.Component {
                         value={Note.note_headline}
                         placeholder="Note headline"
 
-                        onClick={this.handle_open_headline_popper}
+                        onClick={isSmart&&this.handle_open_headline_popper}
                         onChange={event =>
                             this.handleNoteDescriptionChange(
                                 Note.note_id,
@@ -290,7 +290,7 @@ export class CanvasNote extends React.Component {
                         disabled={this.props.isShare}
                         value={Note.note_description}
                         fullWidth
-                        onClick={this.handle_open_description_popper}
+                        onClick={isSmart&&this.handle_open_description_popper}
                         className={classes.resize}
                         placeholder="Note Description"
                         multiline
@@ -412,7 +412,7 @@ export class CanvasNote extends React.Component {
                         onDelete={ received_note_headline_rate?this.handle_confirm_headline_suggestion:this.start_enhancing_headline_field }
                         deleteIcon={<IconButton>{ received_note_headline_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        label={!received_note_headline_rate ? "Do you want to verify this?" : (result_suggestion_for_headline === "green" ? "This is a good Note" : "This needs adjustment")}
+                        label={!received_note_headline_rate ? "Do you want to verify this?" : (result_suggestion_for_headline[1]+result_suggestion_for_headline[0] === "green" ? "%: This is a good Note." : "%: This needs adjustment.")}
                     />
 
 

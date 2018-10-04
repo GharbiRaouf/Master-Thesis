@@ -39,6 +39,15 @@ export default createReducer(initialState, {
     }),
 
     [UPDATE_CANVAS]: (state, { field, newdata }) => {
+        if (field=="canvas_rating"){
+            return {
+                ...state,
+                canvas: {
+                    ...state.canvas,
+                    canvas_rating: [...state.canvas.canvas_rating,newdata]
+                }
+            }
+        }
         return {
             ...state,
             canvas: {

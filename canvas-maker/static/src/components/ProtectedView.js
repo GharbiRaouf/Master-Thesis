@@ -37,7 +37,9 @@ class ProtectedView extends React.Component {
                     ? <h1>Loading data...</h1>
                     :
                     <div>
-                        <img src={land_map} alt="SiteMap" />
+                        <img src={land_map} style={{display: "block",
+    marginLeft: "auto",
+    marginRight: "auto"}} alt="SiteMap" />
                     </div>
                 }
             </div>

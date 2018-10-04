@@ -17,22 +17,22 @@ dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'application/train/docs/notes.txt')
 
 # note_file=open("../train/docs/notes.txt","r")
+# note_file=open("..\\train\\docs\\notes.txt","r")
 
 from textgenrnn import textgenrnn
 
 TEXT_GENERATOR = textgenrnn()
-TEXT_GENERATOR.generate()
-
+# import os
 # from textgenrnn import textgenrnn
 # TEXT_GENERATOR=textgenrnn()
-# try:
-#     note_file=open("../train/docs/notes.txt","r")
-#     if(not note_file):
-#         expose_db()
-#     note_file.close()
-#     TEXT_GENERATOR.train_from_file("../train/docs/notes.tx",num_epochs=2)
-# except:
-#     TEXT_GENERATOR.train_from_file("../train/docs/sample.txt",num_epochs=2)
+try:
+    note_file=open(os.path.abspath("../train/docs/notes.txt"),"r")
+    if(not note_file):
+        expose_db()
+    note_file.close()
+    TEXT_GENERATOR.train_from_file(os.path.abspath("../train/docs/notes.txt"),num_epochs=2)
+except:
+    TEXT_GENERATOR = textgenrnn()
 
 
 @api_bp.route("/destroy_tests",methods=["GET"])
@@ -44,7 +44,9 @@ def destroy_tests():
 @api_bp.route("/expose_db_notes",methods=["GET"])
 def expose_db():
     # every_note=list(Canvas.find({"canvas_name":{'$regex': '.*est.*'}},{"_id":0}))
-    every_canvas_notes=[x["canvas_notes"] for x in list(Canvas.find({}, {"_id": 0,"canvas_notes.note_headline":1,"canvas_notes.note_description":1}))]
+    every_good_canvas=list(Canvas.find({"qty": { "$gt": 3 } },{"_id":0}))
+    # every_canvas_notes=[x["canvas_notes"] for x in list(Canvas.find({}, {"_id": 0,"canvas_notes.note_headline":1,"canvas_notes.note_description":1}))]    
+    every_canvas_notes=[x["canvas_notes"] for x in every_good_canvas]
     every_note=[]
     for item in every_canvas_notes:
         for i in item:
@@ -118,6 +120,8 @@ def many_canvas_update():
 def update_canvas():
     try:
         updated_canvas = request.get_json()['canvas']
+        if updated_canvas["canvas_ratings"]:
+            updated_canvas["canvas_rating"]=sum(updated_canvas["canvas_ratings"])/len(updated_canvas["canvas_ratings"])
         Canvas.find_one_and_update({'canvas_id': updated_canvas['canvas_id']}, {
                                    '$set': updated_canvas})
         return jsonify(user_canvas=Canvas.find_one({'canvas_id': updated_canvas['canvas_id']}, {"_id": 0}))

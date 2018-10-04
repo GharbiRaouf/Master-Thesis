@@ -57,6 +57,18 @@ export const CanvasModelStyles = theme => ({
         margin: 0,
         padding: 0
     },
+    fab_btn: {
+        position: 'fixed',
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 2,
+        zIndex: 1000,       
+        margin: 0,
+        top: 'auto',
+        right: 20,
+        bottom: 20,
+        left: 'auto',
+        
+    },
     fab: {
         // position: 'absolute',
         margin: 0,
@@ -193,6 +205,11 @@ export const menuStyles = theme => ({
         position: "relative",
         display: "flex",
         width: "100%"
+    },
+    fab_btn: {
+        position: 'absolute',
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 2,
     },
     flex_display: {
         position: "relative",
