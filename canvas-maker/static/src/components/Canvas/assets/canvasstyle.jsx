@@ -64,8 +64,6 @@ export const CanvasModelStyles = theme => ({
         zIndex: 1000,       
         margin: 0,
         top: 'auto',
-        right: 20,
-        bottom: 20,
         left: 'auto',
         
     },

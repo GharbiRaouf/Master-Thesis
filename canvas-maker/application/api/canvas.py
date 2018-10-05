@@ -11,29 +11,9 @@ import requests as API_REQUESTS
 alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 awesome_text = ["A good Project", "Fantastic Project",
                 "An awesome project", "Best Project all over the world"]
-
-import os
-dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, 'application/train/docs/notes.txt')
-
-# note_file=open("../train/docs/notes.txt","r")
-# note_file=open("..\\train\\docs\\notes.txt","r")
-
-from textgenrnn import textgenrnn
-
-TEXT_GENERATOR = textgenrnn()
-# import os
-# from textgenrnn import textgenrnn
-# TEXT_GENERATOR=textgenrnn()
-try:
-    note_file=open(os.path.abspath("../train/docs/notes.txt"),"r")
-    if(not note_file):
-        expose_db()
-    note_file.close()
-    TEXT_GENERATOR.train_from_file(os.path.abspath("../train/docs/notes.txt"),num_epochs=2)
-except:
-    TEXT_GENERATOR = textgenrnn()
-
+# f=open("notes.txt","a")
+# f.write("ezaezae")
+# f.close()
 
 @api_bp.route("/destroy_tests",methods=["GET"])
 def destroy_tests():
@@ -44,7 +24,7 @@ def destroy_tests():
 @api_bp.route("/expose_db_notes",methods=["GET"])
 def expose_db():
     # every_note=list(Canvas.find({"canvas_name":{'$regex': '.*est.*'}},{"_id":0}))
-    every_good_canvas=list(Canvas.find({"qty": { "$gt": 3 } },{"_id":0}))
+    every_good_canvas=list(Canvas.find({"canvas_rating": { "$gt": 3 } },{"_id":0}))
     # every_canvas_notes=[x["canvas_notes"] for x in list(Canvas.find({}, {"_id": 0,"canvas_notes.note_headline":1,"canvas_notes.note_description":1}))]    
     every_canvas_notes=[x["canvas_notes"] for x in every_good_canvas]
     every_note=[]
@@ -52,7 +32,7 @@ def expose_db():
         for i in item:
             every_note.append([i["note_headline"],i["note_description"]])
     if(not request):
-        result=open("../train/docs/notes.txt","w")
+        result=open("notes.txt","a")
         result.writelines("\n".join([" : ".join(x) for x in every_note]))
         result.close()
         return
@@ -138,16 +118,34 @@ def delete_canvas():
     except:
         return jsonify(deleteState=False)
 
+# note_file=open(filename,"r")
+# note_file=open("notes.txt","r")
+# note_file=open("..\\train\\docs\\notes.txt","r")
+# note_file.close()
+from textgenrnn import textgenrnn
+
+TEXT_GENERATOR = textgenrnn()
+try:
+    import os
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, 'allnotes.txt')
+    note_file = open(filename,"r")
+    if not note_file:
+        expose_db()
+    print(len(note_file.readlines()))
+    note_file.close()
+    TEXT_GENERATOR.train_from_file(filename, num_epochs=2)
+except Exception as E:
+    TEXT_GENERATOR = textgenrnn()
+
 
 @api_bp.route("/optimize_text",methods=["POST"])
 def optimize_text():
-    resultGen = TEXT_GENERATOR.generate(1,return_as_list=True)
-    return jsonify(suggestions=resultGen[0])
-    # try:
-    #     resultGen = TEXT_GENERATOR.generate(n=1,return_as_list=True)
-    #     return jsonify(suggestions=resultGen[0])
-    # except Exception:
-    #     return jsonify(suggestions="No suggestions")
+    try:
+        resultGen = TEXT_GENERATOR.generate(n=1,return_as_list=True)
+        return jsonify(suggestions=resultGen[0])
+    except Exception:
+        return jsonify(suggestions="No suggestions")
 
 @api_bp.route("/qualify_headline",methods=["POST"])
 def qualify_headline():

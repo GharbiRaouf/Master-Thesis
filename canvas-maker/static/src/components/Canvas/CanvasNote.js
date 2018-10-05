@@ -265,7 +265,7 @@ export class CanvasNote extends React.Component {
                     style={{
                         backgroundColor: Note.note_color,
                         borderStyle: "solid",
-                        borderColor: Boolean(result_suggestion_for_headline) ? result_suggestion_for_headline : Note.note_color
+                        borderColor: Boolean(result_suggestion_for_headline) ? result_suggestion_for_headline[0] : Note.note_color
                     }}
                 >
                     <Input
@@ -412,7 +412,7 @@ export class CanvasNote extends React.Component {
                         onDelete={ received_note_headline_rate?this.handle_confirm_headline_suggestion:this.start_enhancing_headline_field }
                         deleteIcon={<IconButton>{ received_note_headline_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        label={!received_note_headline_rate ? "Do you want to verify this?" : (result_suggestion_for_headline[1]+result_suggestion_for_headline[0] === "green" ? "%: This is a good Note." : "%: This needs adjustment.")}
+                        label={!received_note_headline_rate ? "Do you want to verify this?" : ((result_suggestion_for_headline[0] === "green" ? "This is a good Note. " : "This needs adjustment. ")+'[ rating:'+(Number(result_suggestion_for_headline[1])).toFixed(2)+"% ]")}
                     />
 
 

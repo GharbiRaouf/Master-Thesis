@@ -77,7 +77,7 @@ class CanvasModel extends React.Component {
       to_suggest_id: null,
       suggestion_field: null,
       suggestion_result: null,
-      openRate:false,
+      openRate: false,
     };
 
   }
@@ -178,10 +178,11 @@ class CanvasModel extends React.Component {
 
   changeRating = (newRating) => {
     this.setState({
-      rating: newRating
+      rating: newRating,
+      openRate: !this.state.openRate
     });
     this.props.updateCanvas("canvas_rating", newRating)
-    this.props.updateAndSaveCanvas(this.props.canvas, this.state.PREVIEW, this.props.token)
+    this.props.updateAndSaveCanvas(this.props.canvas, "rating_update", this.props.token)
 
   };
 
@@ -296,6 +297,8 @@ class CanvasModel extends React.Component {
                 starRatedColor="orange"
                 changeRating={this.changeRating}
                 numberOfStars={5}
+                starDimension="30px"
+                starSpacing="8px"
                 name="rating"
               />
             </div>
