@@ -33,7 +33,20 @@ import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
 
-
+const Channel_Suggestions = [
+    {
+        "headline": "Social Media - Facebook",
+        "description": "Our Company  Facebook Page",
+    },
+    {
+        "headline": "Webpage ",
+        "description": "Our Company Page and our Ads ",
+    },
+    {
+        "headline": "E-mail Marketing",
+        "description": "Sending Email to customers",
+    }
+]
 
 // const suggestion = {
 //     "note_headline": "Something better",
@@ -75,33 +88,35 @@ export class CanvasNote extends React.Component {
         const { NoteField } = this.props
         var judgement = result_suggestion_for_headline[0]
         var rating = (Number(result_suggestion_for_headline[1])).toFixed(2);
-        console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
-        
+        // console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
+
         var result = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "% ]";
         if (NoteField.indexOf("Problem") >= 0) { result += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
         else result += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
         return result
     }
 
-    handle_open_headline_popper = (event) => {
+    handle_open_headline_popper = (event, isSmart, isChannel) => {
         if (this.props.isShare) return;
-        this.setState({
-            note_headline_popper_anchor: event.currentTarget,
-            fetching_note_headline_rate: false,
-            received_note_headline_rate: false,
-            result_suggestion_for_headline: null,
+        if ((isSmart) || (isChannel))
+            this.setState({
+                note_headline_popper_anchor: event.currentTarget,
+                fetching_note_headline_rate: false,
+                received_note_headline_rate: false,
+                result_suggestion_for_headline: null,
 
-        })
+            })
     }
 
-    handle_open_description_popper = (event) => {
+    handle_open_description_popper = (event, isSmart, isChannel) => {
         if (this.props.isShare) return;
-        this.setState({
-            note_description_popper_anchor: event.currentTarget,
-            fetching_note_description_rate: false,
-            received_note_description_rate: false,
-            result_suggestion_for_description: null,
-        })
+        if ((isSmart) || (isChannel))
+            this.setState({
+                note_description_popper_anchor: event.currentTarget,
+                fetching_note_description_rate: false,
+                received_note_description_rate: false,
+                result_suggestion_for_description: null,
+            })
     }
 
     handle_close_headline_popper = () => {
@@ -124,8 +139,9 @@ export class CanvasNote extends React.Component {
         })
     }
 
-    handle_confirm_headline_suggestion = () => {
+    handle_confirm_headline_suggestion = (isChannel) => {
         if (this.props.isShare) return;
+        if (isChannel) this.handleNoteDescriptionChange(this.props.Note.note_id, "note_headline", this.state.result_suggestion_for_headline);
         this.handle_close_headline_popper();
     }
 
@@ -135,7 +151,7 @@ export class CanvasNote extends React.Component {
         this.handle_close_description_popper();
     }
 
-    start_enhancing_headline_field = () => {
+    start_enhancing_headline_field = (isChannel) => {
         if (this.props.isShare) return;
         this.setState({
             fetching_note_headline_rate: true,
@@ -143,6 +159,16 @@ export class CanvasNote extends React.Component {
             result_suggestion_for_headline: this.props.Note.note_color
 
         })
+        if (isChannel) {
+            var index = Math.floor(Math.random() * Channel_Suggestions.length);
+            this.setState({
+                fetching_note_headline_rate: false,
+                received_note_headline_rate: true,
+                result_suggestion_for_headline: Channel_Suggestions[index].headline,
+            })
+
+            return;
+        }
         Axios.post("/api/v1/qualify_headline", {
             text_to_enhance: this.props.Note.note_headline
         }).then(response => {
@@ -153,7 +179,7 @@ export class CanvasNote extends React.Component {
             })
         })
     }
-    start_enhancing_description_field = () => {
+    start_enhancing_description_field = (isChannel) => {
         // console.log(this.props.NoteField);
 
         if (this.props.isShare) return;
@@ -163,6 +189,16 @@ export class CanvasNote extends React.Component {
             result_suggestion_for_description: this.props.Note.note_color
 
         })
+        if (isChannel) {
+            var index = Math.floor(Math.random() * Channel_Suggestions.length);
+            this.setState({
+                fetching_note_description_rate: false,
+                received_note_description_rate: true,
+                result_suggestion_for_description: Channel_Suggestions[index].description,
+            })
+
+            return;
+        }
         //API CALL
         Axios.post("/api/v1/optimize_text", {
             // "canvas_field": field,
@@ -272,6 +308,7 @@ export class CanvasNote extends React.Component {
             result_suggestion_for_description, } = this.state;
 
         const { Note, classes, isSmart } = this.props
+        const isChannel = this.props.NoteField ? this.props.NoteField.indexOf("Channel") >= 0 : false;
         return (
             <div>
                 <Paper
@@ -291,7 +328,7 @@ export class CanvasNote extends React.Component {
                         value={Note.note_headline}
                         placeholder="Note headline"
 
-                        onClick={isSmart ? this.handle_open_headline_popper : undefined}
+                        onClick={(e) => this.handle_open_headline_popper(e, isSmart, isChannel)}
                         onChange={event =>
                             this.handleNoteDescriptionChange(
                                 Note.note_id,
@@ -304,7 +341,7 @@ export class CanvasNote extends React.Component {
                         disabled={this.props.isShare}
                         value={Note.note_description}
                         fullWidth
-                        onClick={isSmart ? this.handle_open_description_popper : undefined}
+                        onClick={(e) => this.handle_open_description_popper(e, isSmart, isChannel)}
                         className={classes.resize}
                         placeholder="Note Description"
                         multiline
@@ -420,13 +457,22 @@ export class CanvasNote extends React.Component {
                         // received_note_headline_rate
                         // result_suggestion_for_headline
                     }
-                    <Chip
-                        color="secondary"
-                        onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : this.start_enhancing_headline_field}
-                        deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                        avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
-                    />
+                    {isChannel ?
+                        <Chip
+                            color="secondary"
+                            onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
+                            deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                            avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
+                            label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
+                        />
+                        : <Chip
+                            color="secondary"
+                            onDelete={received_note_headline_rate ? () => this.handle_confirm_headline_suggestion(isChannel) : () => this.start_enhancing_headline_field(isChannel)}
+                            deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                            avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
+                            label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
+                        />
+                    }
 
 
                 </Popper>
@@ -458,7 +504,7 @@ export class CanvasNote extends React.Component {
                     }
                     <Chip
                         color="primary"
-                        onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : this.start_enhancing_description_field}
+                        onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : () => this.start_enhancing_description_field(isChannel)}
                         deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
                         label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
