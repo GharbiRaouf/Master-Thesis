@@ -122,28 +122,31 @@ def delete_canvas():
 # note_file=open("notes.txt","r")
 # note_file=open("..\\train\\docs\\notes.txt","r")
 # note_file.close()
-from textgenrnn import textgenrnn
+# from textgenrnn import textgenrnn
 
-TEXT_GENERATOR = textgenrnn()
-try:
-    import os
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, 'allnotes.txt')
-    note_file = open(filename,"r")
-    if not note_file:
-        expose_db()
-    print(len(note_file.readlines()))
-    note_file.close()
-    TEXT_GENERATOR.train_from_file(filename, num_epochs=2)
-except Exception as E:
-    TEXT_GENERATOR = textgenrnn()
+# TEXT_GENERATOR = textgenrnn()
+# try:
+#     import os
+#     dirname = os.path.dirname(__file__)
+#     filename = os.path.join(dirname, 'allnotes.txt')
+#     note_file = open(filename,"r")
+#     if not note_file:
+#         expose_db()
+#     print(len(note_file.readlines()))
+#     note_file.close()
+#     TEXT_GENERATOR.train_from_file(filename, num_epochs=2)
+# except Exception as E:
+#     TEXT_GENERATOR = textgenrnn()
 
 
 @api_bp.route("/optimize_text",methods=["POST"])
 def optimize_text():
+    canvas_field=request.get_json()['canvas_field']
     try:
-        resultGen = TEXT_GENERATOR.generate(n=1,return_as_list=True)
-        return jsonify(suggestions=resultGen[0])
+        dictToSend = {'canvas_field':canvas_field}
+        res = API_REQUESTS.post('http://localhost:8000/suggest_description', json=dictToSend)
+        dictFromOtherServer = res.json()        
+        return jsonify(suggestions=dictFromOtherServer["response"])
     except Exception:
         return jsonify(suggestions="No suggestions")
 

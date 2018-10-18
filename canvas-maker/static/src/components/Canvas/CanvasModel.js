@@ -189,7 +189,7 @@ class CanvasModel extends React.Component {
   render() {
     const { classes, canvas, isShare } = this.props;
     const { NotesCards } = this.state;
-    const NoteColumn = column => (
+    const NoteColumn = (column, canvas_type) => (
       <Grid
         style={{
           padding: "10px",
@@ -242,7 +242,7 @@ class CanvasModel extends React.Component {
                             key={element.note_id}
                             className={classes.paper}
                           >
-                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} />
+                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} NoteField={_.startCase((canvas_type==="lean_canvas"?"LMC":"BMC")+" "+column.category.split("-").join(" "))} />
                           </div>
                         )}
                       </Draggable>
@@ -261,14 +261,14 @@ class CanvasModel extends React.Component {
           <DragDropContext onDragEnd={this.onDragEnd}>
             <Grid container alignItems="stretch">
               {canvas_style[canvas.canvas_type].map(column => {
-                if (!column.isCompound) return NoteColumn(column);
+                if (!column.isCompound) return NoteColumn(column,canvas.canvas_type);
                 else
                   return (
                     <Grid key={column.id} item xs={column.width} container>
                       {column.items.map(subCol => {
                         return (
                           <div style={{ width: "100%" }} key={subCol.id}>
-                            {NoteColumn(subCol)}
+                            {NoteColumn(subCol,canvas.canvas_type)}
                           </div>
                         );
                       })}

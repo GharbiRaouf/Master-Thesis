@@ -58,21 +58,21 @@ export const standard_canvas = [
     {
         id: 6,
         category: "customer-segments",
-        isSmart:false,
+        isSmart: false,
         width: 3,
         isCompound: false
     },
     {
         id: 7,
         category: "cost-structure",
-        isSmart:false,
+        isSmart: false,
         width: 6,
         isCompound: false
     },
     {
         id: 8,
         category: "revenue-streams",
-        isSmart:false,
+        isSmart: false,
         width: 6,
         isCompound: false
     }

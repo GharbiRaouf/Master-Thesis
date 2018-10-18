@@ -54,6 +54,7 @@ function mapDispatchToProps(dispatch) {
     return bindActionCreators(actionCreators, dispatch);
 }
 
+
 export class CanvasNote extends React.Component {
     state = {
         NotesCards: this.props.canvas ? this.props.canvas.canvas_notes ? this.props.canvas.canvas_notes : [] : [],
@@ -70,6 +71,18 @@ export class CanvasNote extends React.Component {
         result_suggestion_for_headline: null,
         result_suggestion_for_description: null,
     };
+    format_response = (result_suggestion_for_headline) => {
+        const { NoteField } = this.props
+        var judgement = result_suggestion_for_headline[0]
+        var rating = (Number(result_suggestion_for_headline[1])).toFixed(2);
+        console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
+        
+        var result = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "% ]";
+        if (NoteField.indexOf("Problem") >= 0) { result += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
+        else result += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
+        return result
+    }
+
     handle_open_headline_popper = (event) => {
         if (this.props.isShare) return;
         this.setState({
@@ -141,7 +154,8 @@ export class CanvasNote extends React.Component {
         })
     }
     start_enhancing_description_field = () => {
-        
+        // console.log(this.props.NoteField);
+
         if (this.props.isShare) return;
         this.setState({
             fetching_note_description_rate: true,
@@ -150,9 +164,9 @@ export class CanvasNote extends React.Component {
 
         })
         //API CALL
-        // const
         Axios.post("/api/v1/optimize_text", {
-            text_to_enhance: this.props.Note.note_description
+            // "canvas_field": field,
+            "canvas_field": this.props.NoteField
         }).then(response => {
             this.setState({
                 fetching_note_description_rate: false,
@@ -206,7 +220,7 @@ export class CanvasNote extends React.Component {
                 break;
             }
         }
-        this.props.updateCanvas("canvas_notes", NotesCards)
+        // this.props.updateCanvas("canvas_notes", NotesCards)
         this.setState({
             colorsButtonAnchor: event ? event.currentTarget : null,
             // NotesCards
@@ -255,9 +269,9 @@ export class CanvasNote extends React.Component {
             received_note_headline_rate,
             received_note_description_rate,
             result_suggestion_for_headline,
-            result_suggestion_for_description,} = this.state;
+            result_suggestion_for_description, } = this.state;
 
-        const { Note, classes,isSmart } = this.props
+        const { Note, classes, isSmart } = this.props
         return (
             <div>
                 <Paper
@@ -277,7 +291,7 @@ export class CanvasNote extends React.Component {
                         value={Note.note_headline}
                         placeholder="Note headline"
 
-                        onClick={isSmart&&this.handle_open_headline_popper}
+                        onClick={isSmart ? this.handle_open_headline_popper : undefined}
                         onChange={event =>
                             this.handleNoteDescriptionChange(
                                 Note.note_id,
@@ -290,7 +304,7 @@ export class CanvasNote extends React.Component {
                         disabled={this.props.isShare}
                         value={Note.note_description}
                         fullWidth
-                        onClick={isSmart&&this.handle_open_description_popper}
+                        onClick={isSmart ? this.handle_open_description_popper : undefined}
                         className={classes.resize}
                         placeholder="Note Description"
                         multiline
@@ -351,7 +365,6 @@ export class CanvasNote extends React.Component {
                         style={{ width: "100%" }}
                         open={Boolean(Note.expanded)}
                         onClose={() => this.handleExpandColorsClick(Note.note_id, null)}
-
                     >
                         <div style={{ width: "100%", padding: 10 }}
                         >
@@ -382,7 +395,7 @@ export class CanvasNote extends React.Component {
                     </Popover>
                 </Paper>
                 <Popper
-                    style={{maxWidth:150,zIndex:2000}}
+                    style={{ maxWidth: 150, zIndex: 2000 }}
                     placement="right"
                     disablePortal={true}
                     modifiers={{
@@ -409,16 +422,16 @@ export class CanvasNote extends React.Component {
                     }
                     <Chip
                         color="secondary"
-                        onDelete={ received_note_headline_rate?this.handle_confirm_headline_suggestion:this.start_enhancing_headline_field }
-                        deleteIcon={<IconButton>{ received_note_headline_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
+                        onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : this.start_enhancing_headline_field}
+                        deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        label={!received_note_headline_rate ? "Do you want to verify this?" : ((result_suggestion_for_headline[0] === "green" ? "This is a good Note. " : "This needs adjustment. ")+'[ rating:'+(Number(result_suggestion_for_headline[1])).toFixed(2)+"% ]")}
+                        label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
                     />
 
 
                 </Popper>
                 <Popper
-                    style={{maxWidth:150,zIndex:2000}}
+                    style={{ maxWidth: 150, zIndex: 2000 }}
                     placement="right"
                     disablePortal={true}
                     modifiers={{
@@ -445,10 +458,10 @@ export class CanvasNote extends React.Component {
                     }
                     <Chip
                         color="primary"
-                        onDelete={ received_note_description_rate?this.handle_confirm_description_suggestion:this.start_enhancing_description_field }
-                        deleteIcon={<IconButton>{ received_note_description_rate ?<DoneIcon /> :<SearchIcon />}</IconButton>}
+                        onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : this.start_enhancing_description_field}
+                        deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
-                        label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description )}
+                        label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
                     />
 
 

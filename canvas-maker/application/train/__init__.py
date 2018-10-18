@@ -1,5 +1,5 @@
 # smart text generation
-from textgenrnn import textgenrnn
+# from textgenrnn import textgenrnn
 
  
 
