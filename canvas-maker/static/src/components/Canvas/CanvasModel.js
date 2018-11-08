@@ -71,6 +71,7 @@ class CanvasModel extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
 
     this.state = {
+      openSnack:false,
       NotesCards: props.canvas ? props.canvas.canvas_notes ? props.canvas.canvas_notes : [] : [],
       popperAnchorEl: null,
       lookingForBetterText: false,
@@ -80,6 +81,27 @@ class CanvasModel extends React.Component {
       openRate: false,
     };
 
+  }
+  handleSnackClick = (result) => {
+    var x = Object.assign({},result.source);
+    result.source=result.destination;
+    result.destination = x;
+    this.setState({ lastMove:result,openSnack: true });
+    
+  };
+
+  handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    this.setState({ openSnack: false });
+  };
+
+  handleRollBack = ()=>{
+    this.onDragEnd(this.state.lastMove)
+    this.setState({ openSnack: false });
+    
   }
   dispatchNewRoute(route) {
     this.props.changePage(route)
@@ -99,7 +121,6 @@ class CanvasModel extends React.Component {
     let sourceDrop;
     let destinDrop;
     if (result.source.droppableId === result.destination.droppableId) {
-      console.log("sort")
       sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
       destinDrop = []
       const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
@@ -111,6 +132,7 @@ class CanvasModel extends React.Component {
       destinDrop = _.filter(NotesCards, { note_position: result.destination.droppableId })
       const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
       lovelyItem.note_position = result.destination.droppableId
+      this.handleSnackClick(result);
       destinDrop.splice(result.destination.index, 0, lovelyItem)
     }
     let stableDrop = _.filter(NotesCards, e => { return ((_.indexOf(sourceDrop, e) < 0) && (_.indexOf(destinDrop, e) < 0)) })
@@ -321,7 +343,33 @@ class CanvasModel extends React.Component {
             {this.props.isSaving ? <CircularProgress /> : <SaveIcon />}
           </Button>
         }
-
+        <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          open={this.state.openSnack}
+          autoHideDuration={6000}
+          onClose={this.handleSnackClose}
+          ContentProps={{
+            'aria-describedby': 'message-id',
+          }}
+          message={<span id="message-id">Note Changing Note may not be appropriate</span>}
+          action={[
+            <Button key="undo" color="secondary" size="small" onClick={this.handleRollBack}>
+              UNDO
+            </Button>,
+            <IconButton
+              key="close"
+              aria-label="Close"
+              color="inherit"
+              className={classes.close}
+              onClick={this.handleSnackClose}
+            >
+              <CloseIcon />
+            </IconButton>,
+          ]}
+        />
       </div>
     );
   }

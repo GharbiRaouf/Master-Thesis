@@ -13,7 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import ColorLensIcon from "@material-ui/icons/ColorLens";
 import InfoIcon from "@material-ui/icons/Info";
 import CloseIcon from "@material-ui/icons/Close";
-import { Popper, Chip, Avatar } from "@material-ui/core"
+import { Popper, Chip, Avatar, MenuItem } from "@material-ui/core"
 import SearchIcon from "@material-ui/icons/Search";
 import DoneIcon from "@material-ui/icons/Done";
 import { Typography } from "@material-ui/core";
@@ -35,6 +35,10 @@ import * as actionCreators from '../../actions/canvas';
 
 const Channel_Suggestions = [
     {
+        "headline": "",
+        "description": "",
+    },
+    {
         "headline": "Social Media - Facebook",
         "description": "Our Company  Facebook Page",
     },
@@ -48,10 +52,6 @@ const Channel_Suggestions = [
     }
 ]
 
-// const suggestion = {
-//     "note_headline": "Something better",
-//     "note_description": "Better description"
-// }
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
@@ -293,6 +293,11 @@ export class CanvasNote extends React.Component {
             // NotesCards
         });
     }
+    giveChannelSuggestion = (note_id,e) => {
+        this.handleNoteDescriptionChange(note_id,"note_headline",e.headline)
+        this.handleNoteDescriptionChange(note_id,"note_description",e.description)
+        this.setState({ note_headline_popper_anchor: null })
+    }
     //#endregion Notes Functions
 
 
@@ -432,7 +437,7 @@ export class CanvasNote extends React.Component {
                     </Popover>
                 </Paper>
                 <Popper
-                    style={{ maxWidth: 150, zIndex: 2000 }}
+                    style={{ maxWidth: 200, zIndex: 2000 }}
                     placement="right"
                     disablePortal={true}
                     modifiers={{
@@ -458,13 +463,16 @@ export class CanvasNote extends React.Component {
                         // result_suggestion_for_headline
                     }
                     {isChannel ?
-                        <Chip
-                            color="secondary"
-                            onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
-                            deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                            avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                            label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
-                        />
+                        <Paper style={{ minWidth: "50px" }}>
+                            {Channel_Suggestions.map((e,index) => <MenuItem key={index} onClick={() => this.giveChannelSuggestion(Note.note_id,e)} value={10}>{e.headline.length?e.headline:"None"}</MenuItem>)}
+                        </Paper>
+                        // <Chip
+                        //     color="secondary"
+                        //     onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
+                        //     deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                        //     avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
+                        //     label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
+                        // />
                         : <Chip
                             color="secondary"
                             onDelete={received_note_headline_rate ? () => this.handle_confirm_headline_suggestion(isChannel) : () => this.start_enhancing_headline_field(isChannel)}
@@ -502,13 +510,14 @@ export class CanvasNote extends React.Component {
                         // received_note_description_rate
                         // result_suggestion_for_description
                     }
-                    <Chip
+
+                    {isChannel ? null : <Chip
                         color="primary"
                         onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : () => this.start_enhancing_description_field(isChannel)}
                         deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
                         avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
                         label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
-                    />
+                    />}
 
 
                 </Popper>
