@@ -146,11 +146,11 @@ class CanvasModel extends React.Component {
 
   handleAddNote = note_position => {
     if (this.props.isShare) return;
-    console.log("Heyy");
 
     const { NotesCards } = this.state;
     NotesCards.push({
       note_id: nanoid(),
+      note_canvas: this.props.canvas.canvas_id,
       note_author: this.props.userEmail,
       note_color: "#ffeb3b",
       note_description: "",
@@ -158,7 +158,13 @@ class CanvasModel extends React.Component {
       note_lastEdited: Date.now(),
       note_position: note_position,
       note_questionNumber: "",
-      note_status: "new",
+      note_status: "new",      
+      note_info_expanded: false,
+      note_is_supervised: false,
+      note_ai_rating: "",
+      note_ai_suggestion: "",
+      note_admin_rating: "",
+      note_admin_suggestion: ""
     });
     this.props.updateCanvas("canvas_notes", NotesCards)
     this.props.mustSaveCanvas()
@@ -220,7 +226,8 @@ class CanvasModel extends React.Component {
         }}
         item
         key={column.id}
-        xs={column.width}
+        lg={column.width}
+        xs={12}
       >
         <Card className={classes.card}>
           <CardHeader
@@ -282,11 +289,12 @@ class CanvasModel extends React.Component {
         {canvas &&
           <DragDropContext onDragEnd={this.onDragEnd}>
             <Grid container alignItems="stretch">
+            
               {canvas_style[canvas.canvas_type].map(column => {
                 if (!column.isCompound) return NoteColumn(column,canvas.canvas_type);
                 else
                   return (
-                    <Grid key={column.id} item xs={column.width} container>
+                    <Grid key={column.id} item lg={column.width} xs={12} container>
                       {column.items.map(subCol => {
                         return (
                           <div style={{ width: "100%" }} key={subCol.id}>

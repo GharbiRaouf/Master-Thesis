@@ -1,6 +1,7 @@
 /* eslint camelcase: 0 */
 
 import axios from 'axios';
+import { API_URL } from '../constants/utils';
 
 const tokenConfig = (token) => ({
     headers: {
@@ -9,7 +10,7 @@ const tokenConfig = (token) => ({
 });
 
 export function validate_token(token) {
-    return axios.post('/api/v1/is_token_valid', {
+    return axios.post(API_URL+'is_token_valid', {
         token,
     });
 }
@@ -22,14 +23,14 @@ export function get_github_access() {
 }
 
 export function create_user(email, password) {
-    return axios.post('api/v1/create_user', {
+    return axios.post(API_URL+'create_user', {
         email,
         password,
     });
 }
 
 export function update_user(email, password, username, token) {
-    return axios.post('api/v1/update_user', {
+    return axios.post(API_URL+'update_user', {
         email,
         password,
         username
@@ -37,46 +38,48 @@ export function update_user(email, password, username, token) {
 }
 
 export function get_token(email, password) {
-    return axios.post('api/v1/get_token', {
+    return axios.post(API_URL+'get_token', {
         email,
         password,
     });
 }
-
+export async function disconnect(token) {
+    return await axios.post(API_URL+'disconnect',{token});
+}
 export function has_github_token(token) {
-    return axios.get('api/v1/has_github_token', tokenConfig(token));
+    return axios.get(API_URL+'has_github_token', tokenConfig(token));
 }
 
 export function data_about_user(token) {
-    return axios.get('api/v1/user', tokenConfig(token));
+    return axios.get(API_URL+'user', tokenConfig(token));
 }
 
 export function create_new_canvas(canvas_type, token) {
-    return axios.post('/api/v1/new_canvas', {
+    return axios.post(API_URL+'new_canvas', {
         "canvas_type": canvas_type
     }, tokenConfig(token))
 }
 
 export function get_canvas_by_id(canvas_id, token) {
-    return axios.post('/api/v1/get_canvas_by_canvas_id', {
+    return axios.post(API_URL+'get_canvas_by_canvas_id', {
         "canvas_id": canvas_id,
     }, tokenConfig(token))
 }
 
 
 export function post_canvas_update(canvas, token) {
-    return axios.post('/api/v1/update_canvas', {
+    return axios.post(API_URL+'update_canvas', {
         "canvas": canvas,
     }, tokenConfig(token))
 }
 
 
 export function delete_canvas(canvas_id, token) {
-    return axios.post('/api/v1/delete_canvas', {
+    return axios.post(API_URL+'delete_canvas', {
         "canvas_id": canvas_id,
     }, tokenConfig(token))
 }
 
 export function load_all_user_canvas(token) {
-    return axios.post('/api/v1/get_canvas_by_user', {}, tokenConfig(token))
+    return axios.post(API_URL+'get_canvas_by_user', {}, tokenConfig(token))
 }

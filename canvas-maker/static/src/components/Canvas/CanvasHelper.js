@@ -118,7 +118,6 @@ class CanvasHelper extends React.Component {
         const { classes, theme } = this.props;
         const { activeStep } = this.state;
         const maxSteps = tutorialSteps.length;
-        // console.log(tuto_img);
 
         return (
             <div>

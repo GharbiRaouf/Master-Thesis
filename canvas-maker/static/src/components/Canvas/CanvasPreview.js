@@ -91,7 +91,6 @@ class Preview extends React.Component {
     initiateCanvas = (canvas_type) => {
         // const canvas_type = "standard_canvas"
         this.props.createNewCanvas(canvas_type, this.props.token)
-        console.log("initiateCanvas");
 
         // this.dispatchNewRoute('/designer/New_Canvas')
     }
@@ -116,7 +115,7 @@ class Preview extends React.Component {
         this.props.updateCanvas('canvas_description', this.state.canvas_description)
     }
     render() {
-        const { classes, isPreview, canvas_preview, canvas_name, canvas_lastUpdate, canvas_id } = this.props;
+        const { classes, isPreview, canvas_name, canvas_lastUpdate, canvas_id } = this.props;
         const { anchorEl } = this.state;
         const expanded = !!anchorEl;
         return (
@@ -124,7 +123,6 @@ class Preview extends React.Component {
                 {isPreview ? (
                     <div>
                         <CardContent onClick={() => this.setCanvas(canvas_id)} >
-                            {console.log(canvas_preview)}
                             <img className={classes.media} src={canvas_preview_bg} alt='Canvas Preview' />
                         </CardContent>
                         <CardActions className={classes.actions} >

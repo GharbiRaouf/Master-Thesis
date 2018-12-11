@@ -33,7 +33,6 @@ def internal_server_error(error):
 
 @api_bp.before_request
 def before_request():
-
     pass
     # check for Idle time & expiration
     # flask.g.user = current_user

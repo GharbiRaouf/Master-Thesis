@@ -66,7 +66,6 @@ class CanvasDetails extends React.Component {
 
     handleSecondaryAction = (action, index) => {
         let newMemberShip = Array.from(this.props.canvas.canvas_team)
-        console.log(newMemberShip, action, index);
 
         if (action === "Make_Admin") newMemberShip[index].role = "creator"
         if (action === "Make_Partner") newMemberShip[index].role = "partner"

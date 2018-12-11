@@ -13,7 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import ColorLensIcon from "@material-ui/icons/ColorLens";
 import InfoIcon from "@material-ui/icons/Info";
 import CloseIcon from "@material-ui/icons/Close";
-import { Popper, Chip, Avatar, MenuItem } from "@material-ui/core"
+import { Popper, Chip, Avatar, MenuItem, ClickAwayListener } from "@material-ui/core"
 import SearchIcon from "@material-ui/icons/Search";
 import DoneIcon from "@material-ui/icons/Done";
 import { Typography } from "@material-ui/core";
@@ -85,20 +85,27 @@ export class CanvasNote extends React.Component {
         result_suggestion_for_description: null,
     };
     format_response = (result_suggestion_for_headline) => {
-        const { NoteField } = this.props
-        var judgement = result_suggestion_for_headline[0]
-        var rating = (Number(result_suggestion_for_headline[1])).toFixed(2);
-        // console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
+        const { NoteField } = this.props;
+        var resultof="";
+        try{
+            var judgement = result_suggestion_for_headline[0]
+            var rating = (Number(result_suggestion_for_headline[1])).toFixed(2);
+            if(isNaN(result_suggestion_for_headline[1])) rating = result_suggestion_for_headline[1];
+            // console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
 
-        var result = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "% ]";
-        if (NoteField.indexOf("Problem") >= 0) { result += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
-        else result += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
-        return result
+            resultof = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "% ]";
+            if(!isNaN(result_suggestion_for_headline[1])){
+                if (NoteField.indexOf("Problem") >= 0) { resultof += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
+                else resultof += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
+            }
+        }catch (e) {
+            resultof=result_suggestion_for_headline
+        }
+        return resultof
     }
-
     handle_open_headline_popper = (event, isSmart, isChannel) => {
         if (this.props.isShare) return;
-        if ((isSmart) || (isChannel))
+        // if ((isSmart) || (isChannel))
             this.setState({
                 note_headline_popper_anchor: event.currentTarget,
                 fetching_note_headline_rate: false,
@@ -170,13 +177,25 @@ export class CanvasNote extends React.Component {
             return;
         }
         Axios.post("/api/v1/qualify_headline", {
-            text_to_enhance: this.props.Note.note_headline
+            headline: this.props.Note.note_headline,
+            note_type: this.props.Note.note_position,
+            notes_to_optimize: this.props.Note
+
         }).then(response => {
+            let qlt=""
+            if (response.data["quality"])
+                if(response.data["quality"]["quality"])
+                    qlt=response.data["quality"]["quality"]
+                else
+                    qlt=response.data["quality"]
             this.setState({
                 fetching_note_headline_rate: false,
                 received_note_headline_rate: true,
-                result_suggestion_for_headline: response.data.quality.quality,
+                result_suggestion_for_headline: qlt,
             })
+
+            this.handleNoteDescriptionChange(this.props.Note.note_id,"note_ai_rating",qlt)
+
         })
     }
     start_enhancing_description_field = (isChannel) => {
@@ -202,7 +221,8 @@ export class CanvasNote extends React.Component {
         //API CALL
         Axios.post("/api/v1/optimize_text", {
             // "canvas_field": field,
-            "canvas_field": this.props.NoteField
+            "canvas_field": this.props.NoteField,
+            "notes_to_optimize": this.props.Note
         }).then(response => {
             this.setState({
                 fetching_note_description_rate: false,
@@ -210,6 +230,7 @@ export class CanvasNote extends React.Component {
                 result_suggestion_for_description: response.data.suggestions,
 
             })
+            this.handleNoteDescriptionChange(this.props.Note.note_id,"note_ai_suggestion",response.data.suggestions)
         })
 
     }
@@ -222,7 +243,7 @@ export class CanvasNote extends React.Component {
         for (var i in NotesCards) {
             if (NotesCards[i].note_id === id) {
                 NotesCards[i][field] = fieldUpdate;
-
+                NotesCards[i]["note_author"]=this.props.userEmail
                 break;
             }
         }
@@ -293,10 +314,30 @@ export class CanvasNote extends React.Component {
             // NotesCards
         });
     }
-    giveChannelSuggestion = (note_id,e) => {
-        this.handleNoteDescriptionChange(note_id,"note_headline",e.headline)
-        this.handleNoteDescriptionChange(note_id,"note_description",e.description)
+    giveChannelSuggestion = (note_id, e) => {
+        if (e.headline !== "") {
+            //console.log(e);
+
+            this.handleNoteDescriptionChange(note_id, "note_headline", e.headline)
+            this.handleNoteDescriptionChange(note_id, "note_description", e.description)
+        }
         this.setState({ note_headline_popper_anchor: null })
+    }
+
+    resetPoppers = () => {
+        this.setState({
+            note_headline_popper_anchor: null,
+            note_description_popper_anchor: null,
+
+            fetching_note_headline_rate: false,
+            fetching_note_description_rate: false,
+
+            received_note_headline_rate: false,
+            received_note_description_rate: false,
+
+            result_suggestion_for_headline: null,
+            result_suggestion_for_description: null,
+        })
     }
     //#endregion Notes Functions
 
@@ -400,6 +441,7 @@ export class CanvasNote extends React.Component {
 
                             <Typography variant="caption"> Made By {Note.note_author}</Typography>
                             <Typography variant="caption"> Last Edited :{timeago().format(Note.note_lastEdited)}</Typography>
+                            <Button mini fullWidth>Try AI</Button>
                         </div>
                     </Popover>
                     <Popover
@@ -436,93 +478,97 @@ export class CanvasNote extends React.Component {
                         </div>
                     </Popover>
                 </Paper>
-                <Popper
-                    style={{ maxWidth: 200, zIndex: 2000 }}
-                    placement="right"
-                    disablePortal={true}
-                    modifiers={{
-                        flip: {
-                            enabled: true
-                        },
-                        preventOverflow: {
-                            enabled: false,
-                            boundariesElement: "scrollParent"
-                        },
-                        arrow: {
-                            enabled: true,
-                            element: "arrowRef"
-                        }
-                    }}
-                    open={Boolean(note_headline_popper_anchor)}
-                    anchorEl={note_headline_popper_anchor}
-                >
-                    {
-                        // note_headline_popper_anchor
-                        // fetching_note_headline_rate
-                        // received_note_headline_rate
-                        // result_suggestion_for_headline
-                    }
-                    {isChannel ?
-                        <Paper style={{ minWidth: "50px" }}>
-                            {Channel_Suggestions.map((e,index) => <MenuItem key={index} onClick={() => this.giveChannelSuggestion(Note.note_id,e)} value={10}>{e.headline.length?e.headline:"None"}</MenuItem>)}
-                        </Paper>
-                        // <Chip
-                        //     color="secondary"
-                        //     onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
-                        //     deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                        //     avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                        //     label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
-                        // />
-                        : <Chip
-                            color="secondary"
-                            onDelete={received_note_headline_rate ? () => this.handle_confirm_headline_suggestion(isChannel) : () => this.start_enhancing_headline_field(isChannel)}
-                            deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                            avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                            label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
-                        />
-                    }
+                <ClickAwayListener onClickAway={this.resetPoppers}>
+                    <div>
+                        <Popper
+                            style={{ maxWidth: 200, zIndex: 2000 }}
+                            placement="right"
+                            disablePortal={true}
+                            modifiers={{
+                                flip: {
+                                    enabled: true
+                                },
+                                preventOverflow: {
+                                    enabled: false,
+                                    boundariesElement: "scrollParent"
+                                },
+                                arrow: {
+                                    enabled: true,
+                                    element: "arrowRef"
+                                }
+                            }}
+                            open={Boolean(note_headline_popper_anchor)}
+                            anchorEl={note_headline_popper_anchor}
+                        >
+                            {
+                                // note_headline_popper_anchor
+                                // fetching_note_headline_rate
+                                // received_note_headline_rate
+                                // result_suggestion_for_headline
+                            }
+                            {isChannel ?
+                                <Paper style={{ minWidth: "50px" }}>
+                                    {Channel_Suggestions.map((e, index) => <MenuItem key={index} onClick={() => this.giveChannelSuggestion(Note.note_id, e)} value={10}>{e.headline.length ? e.headline : "None"}</MenuItem>)}
+                                </Paper>
+                                // <Chip
+                                //     color="secondary"
+                                //     onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
+                                //     deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                                //     avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
+                                //     label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
+                                // />
+                                : <Chip
+                                    color="secondary"
+                                    onDelete={received_note_headline_rate ? () => this.handle_confirm_headline_suggestion(isChannel) : () => this.start_enhancing_headline_field(isChannel)}
+                                    deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                                    avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
+                                    label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
+                                />
+                            }
 
 
-                </Popper>
-                <Popper
-                    style={{ maxWidth: 150, zIndex: 2000 }}
-                    placement="right"
-                    disablePortal={true}
-                    modifiers={{
-                        flip: {
-                            enabled: true
-                        },
-                        preventOverflow: {
-                            enabled: false,
-                            boundariesElement: "scrollParent"
-                        },
-                        arrow: {
-                            enabled: true,
-                            element: "arrowRef"
-                        }
-                    }}
-                    open={Boolean(note_description_popper_anchor)}
-                    anchorEl={note_description_popper_anchor}
-                >
-                    {
-                        // note_description_popper_anchor
-                        // fetching_note_description_rate
-                        // received_note_description_rate
-                        // result_suggestion_for_description
-                    }
+                        </Popper>
+                        <Popper
+                            style={{ maxWidth: 150, zIndex: 2000 }}
+                            placement="right"
+                            disablePortal={true}
+                            modifiers={{
+                                flip: {
+                                    enabled: true
+                                },
+                                preventOverflow: {
+                                    enabled: false,
+                                    boundariesElement: "scrollParent"
+                                },
+                                arrow: {
+                                    enabled: true,
+                                    element: "arrowRef"
+                                }
+                            }}
+                            open={Boolean(note_description_popper_anchor)}
+                            anchorEl={note_description_popper_anchor}
+                        >
+                            {
+                                // note_description_popper_anchor
+                                // fetching_note_description_rate
+                                // received_note_description_rate
+                                // result_suggestion_for_description
+                            }
 
-                    {isChannel ? null : <Chip
-                        color="primary"
-                        onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : () => this.start_enhancing_description_field(isChannel)}
-                        deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                        avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
-                        label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
-                    />}
+                            {isChannel ? null : <Chip
+                                color="primary"
+                                onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : () => this.start_enhancing_description_field(isChannel)}
+                                deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
+                                avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
+                                label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
+                            />}
 
 
-                </Popper>
+                        </Popper>
+                    </div>
+                </ClickAwayListener>
 
-            </div>
+            </div >
         )
     }
 }

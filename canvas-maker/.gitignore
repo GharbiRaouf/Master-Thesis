@@ -1,8 +1,9 @@
 *.db
 .DS_Store
-venv
-env
-__pycache__
+**venv**
+**env**
+**__pycache__**
+**.__pyc
 blog_old.md
 node_modules
 .idea/*
@@ -11,3 +12,5 @@ static/.idea/*
 tmp
 static/dist
 \.vscode/settings\.json
+
+venv/**

@@ -26,6 +26,13 @@ class NotesCollection(Collection):
         "note_description": str,
         "note_color": str,
         "note_status": str,
+        "note_info_expanded": bool,
+        "note_is_supervised": bool,
+        "note_ai_rating": str,
+        "note_ai_suggestion": str,
+        "note_admin_rating": str,
+        "note_admin_suggestion": str,
+        "note_canvas": str,
     }
 
     def __init__(self, db, *args, **kwargs):
@@ -43,7 +50,7 @@ class CanvasCollection(Collection):
         'canvas_team': list,
         'canvas_preview': str,
         'canvas_notes': list,
-        'canvas_visibility': str, 
+        'canvas_visibility': str,
         'canvas_rating': str,
         'canvas_ratings': list,
         'canvas_lastUpdate': str
@@ -54,14 +61,16 @@ class CanvasCollection(Collection):
             self, collection=db[self.__collection__], *args, **kwargs)
 
 
-
 class UserCollection(Collection):
-
     document_class = UserDocument
 
     __collection__ = 'users'
-    structure = {'user_id': str, 'email': str, 'password': str,
-                 'username': str, 'canvas_collections': list}
+    structure = {'user_id': str,
+                 'email': str,
+                 'password': str,
+                 'username': str,
+                 'isloggedin': bool,
+                 'canvas_collections': list}
     protected_fields = ('password')
 
     def __init__(self, db, *args, **kwargs):

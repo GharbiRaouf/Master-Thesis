@@ -15,7 +15,7 @@ import {
 } from '../constants/index';
 
 import { parseJSON } from '../utils/misc';
-import { get_token, create_user, update_user } from '../utils/http_functions';
+import { get_token, create_user, update_user, disconnect } from '../utils/http_functions';
 
 
 export function loginUserSuccess(token) {
@@ -47,7 +47,9 @@ export function loginUserRequest() {
 }
 
 export function logout() {
+    disconnect(localStorage.getItem('token'));
     localStorage.removeItem('token');
+
     return {
         type: LOGOUT_USER,
     };
