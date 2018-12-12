@@ -4,10 +4,10 @@ import { Route, Switch ,Redirect} from "react-router-dom";
 import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
-import AdminNavbar from "components/Navbars/AdminNavbar.jsx";
-import Footer from "components/Footer/Footer.jsx";
-import Sidebar from "components/Sidebar/Sidebar.jsx";
-import FixedPlugin from "components/FixedPlugin/FixedPlugin.jsx";
+import AdminNavbar from "../../components/Navbars/AdminNavbar.jsx";
+import Footer from "../../components/Footer/Footer.jsx";
+import Sidebar from "../../components/Sidebar/Sidebar.jsx";
+import FixedPlugin from "../../components/FixedPlugin/FixedPlugin.jsx";
 
 import routes from "routes.js";
 
