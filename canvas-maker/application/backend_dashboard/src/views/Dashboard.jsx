@@ -247,7 +247,7 @@ class Dashboard extends React.Component {
               </Row>
             }
           </ModalBody>
-          <ModalFooter>   <Row>            <Col xs={12} center>
+          <ModalFooter>   <Row>            <Col xs={12} >
 
             <Button color="info" onClick={() => this.applyChanges(note_to_force)}>Apply Changes</Button>{' '}
             <Button color="danger" onClick={() => this.revertChanges(note_to_force)}>Revert Changes</Button>{' '}
@@ -256,7 +256,7 @@ class Dashboard extends React.Component {
                <Col xs={12}>
                       {Boolean(note_to_force) &&
                           Object.keys(note_to_force).map((e,i)=>{
-                              return <div key={i} > <strong>{e} :</strong> {note_to_force[e]}</div>
+                              return <div key={i} > <strong>{e} :</strong> {JSON.stringify(note_to_force[e])}</div>
                           })
                       }
                </Col></Row>

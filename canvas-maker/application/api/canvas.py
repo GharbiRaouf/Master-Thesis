@@ -222,7 +222,7 @@ def optimize_text():
         restored_note = notes_to_optimize
     try:
         if restored_note["note_is_supervised"]:
-            notes_to_optimize["note_ai_rating"] = restored_note["note_admin_rating"]
+            notes_to_optimize["note_is_supervised"] = True
             resp = restored_note["note_admin_suggestion"]
         else:
             dictToSend = {'canvas_field': canvas_field}
@@ -266,7 +266,7 @@ def qualify_headline():
     headline = request.get_json()['headline']
     note_type = request.get_json()['note_type']
     notes_to_optimize = request.get_json()['notes_to_optimize']
-    dictFromOtherServer = {"quality": ["red", "Not Sufficient Input"]}
+    dictFromOtherServer = {"quality": ["red", "Not enough input text"]}
     try:
         restored_note = Notes.find_one(
             {"note_id": notes_to_optimize["note_id"]}, {"_id": 0})
@@ -274,7 +274,8 @@ def qualify_headline():
         restored_note = notes_to_optimize
     try:
         if restored_note["note_is_supervised"]:
-            notes_to_optimize["note_ai_suggestion"] = restored_note["note_admin_suggestion"]
+            # notes_to_optimize["note_ai_suggestion"] = restored_note["note_admin_suggestion"]
+            notes_to_optimize["note_is_supervised"] = True
             dictFromOtherServer = {"quality": parse_rating(restored_note["note_admin_rating"])}
         else:
             dictToSend = {
