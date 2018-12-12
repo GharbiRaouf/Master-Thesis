@@ -1,4 +1,4 @@
-import Dashboard from "views/Dashboard.jsx";
+import Dashboard from "./views/Dashboard.jsx";
 
 var routes = [
   {
