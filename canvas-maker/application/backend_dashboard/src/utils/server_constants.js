@@ -1,1 +1,1 @@
-export const API_URL="http://localhost:5000/api/v1/"
+export const API_URL="http://h2793844.stratoserver.net:5000/api/v1/"
