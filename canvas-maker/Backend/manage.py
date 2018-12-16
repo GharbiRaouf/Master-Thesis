@@ -4,8 +4,6 @@ from flask import Flask
 from application import create_app
 
 config_name = os.getenv('FLASK_ENV')
-if config_name==None:
-    config_name='production'
 app = create_app(config_name)
 
 manager = Manager(app)

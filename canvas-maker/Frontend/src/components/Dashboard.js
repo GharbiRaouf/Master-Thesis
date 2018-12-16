@@ -43,6 +43,7 @@ class Dashboard extends React.Component {
                                 canvas_preview={element.canvas_preview}
                                 canvas_id={element.canvas_id}
                                 canvas_name={element.canvas_name}
+                                canvas_preview_bg={element.canvas_preview}
                                 canvas_lastUpdate={element.canvas_lastUpdate} />
                         </Grid>)
                     })}

@@ -14,6 +14,4 @@ static/dist
 \.vscode/settings\.json
 
 venv/**
-cmvenv
-cmvenv/**
-**venv**
+benv/

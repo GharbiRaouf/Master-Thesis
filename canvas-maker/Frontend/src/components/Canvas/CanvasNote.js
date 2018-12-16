@@ -32,6 +32,7 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
+import { API_URL } from "../../constants/utils.js";
 
 const Channel_Suggestions = [
     {
@@ -93,7 +94,7 @@ export class CanvasNote extends React.Component {
             if(isNaN(result_suggestion_for_headline[1])) rating = result_suggestion_for_headline[1];
             // console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
 
-            resultof = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "% ]";
+            resultof = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "]";
             if(!isNaN(result_suggestion_for_headline[1])){
                 if (NoteField.indexOf("Problem") >= 0) { resultof += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
                 else resultof += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
@@ -176,7 +177,7 @@ export class CanvasNote extends React.Component {
 
             return;
         }
-        Axios.post("/api/v1/qualify_headline", {
+        Axios.post(API_URL+"qualify_headline", {
             headline: this.props.Note.note_headline,
             note_type: this.props.Note.note_position,
             notes_to_optimize: this.props.Note
@@ -219,7 +220,7 @@ export class CanvasNote extends React.Component {
             return;
         }
         //API CALL
-        Axios.post("/api/v1/optimize_text", {
+        Axios.post(API_URL+"optimize_text", {
             // "canvas_field": field,
             "canvas_field": this.props.NoteField,
             "notes_to_optimize": this.props.Note

@@ -27,7 +27,7 @@ import {
   getDroppableStyle,
   getItemStyle,
 } from "./utils/dnd_func.js"
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 
 //redux
 import { connect } from 'react-redux';
@@ -53,17 +53,18 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(actionCreators, dispatch);
 }
-const makeCanvas = () => {
-  return html2canvas(document.querySelector("#preview_canvas")).then(canvas => {
-    var extra_canvas = document.createElement("canvas");
-    extra_canvas.setAttribute("width", 320);
-    extra_canvas.setAttribute("height", 180);
-    var ctx = extra_canvas.getContext("2d");
-    ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 320, 180);
-    var dataURL = extra_canvas.toDataURL("image/png");
-    return dataURL
-  });
-};
+// const makeCanvas = () => {
+//   return html2canvas(document.querySelector("#preview_canvas")).then(canvas => {
+//     var extra_canvas = document.createElement("canvas");
+//     extra_canvas.setAttribute("width", 320);
+//     extra_canvas.setAttribute("height", 180);
+//     var ctx = extra_canvas.getContext("2d");
+//     ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 320, 180);
+//     var dataURL = extra_canvas.toDataURL("image/png");
+//     return dataURL
+//   });
+//   return "static/media/canvas_preview.png"
+// };
 
 class CanvasModel extends React.Component {
   constructor(props) {
@@ -71,7 +72,7 @@ class CanvasModel extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
 
     this.state = {
-      openSnack:false,
+      openSnack: false,
       NotesCards: props.canvas ? props.canvas.canvas_notes ? props.canvas.canvas_notes : [] : [],
       popperAnchorEl: null,
       lookingForBetterText: false,
@@ -83,11 +84,11 @@ class CanvasModel extends React.Component {
 
   }
   handleSnackClick = (result) => {
-    var x = Object.assign({},result.source);
-    result.source=result.destination;
+    var x = Object.assign({}, result.source);
+    result.source = result.destination;
     result.destination = x;
-    this.setState({ lastMove:result,openSnack: true });
-    
+    this.setState({ lastMove: result, openSnack: true });
+
   };
 
   handleSnackClose = (event, reason) => {
@@ -98,10 +99,10 @@ class CanvasModel extends React.Component {
     this.setState({ openSnack: false });
   };
 
-  handleRollBack = ()=>{
+  handleRollBack = () => {
     this.onDragEnd(this.state.lastMove)
     this.setState({ openSnack: false });
-    
+
   }
   dispatchNewRoute(route) {
     this.props.changePage(route)
@@ -125,8 +126,6 @@ class CanvasModel extends React.Component {
       destinDrop = []
       const [lovelyItem] = sourceDrop.splice(result.source.index, 1)
       sourceDrop.splice(result.destination.index, 0, lovelyItem)
-
-
     } else {
       sourceDrop = _.filter(NotesCards, { note_position: result.source.droppableId })
       destinDrop = _.filter(NotesCards, { note_position: result.destination.droppableId })
@@ -158,7 +157,7 @@ class CanvasModel extends React.Component {
       note_lastEdited: Date.now(),
       note_position: note_position,
       note_questionNumber: "",
-      note_status: "new",      
+      note_status: "new",
       note_info_expanded: false,
       note_is_supervised: false,
       note_ai_rating: "",
@@ -187,13 +186,24 @@ class CanvasModel extends React.Component {
   }
 
   componentDidMount() {
+    document.addEventListener("keydown", (e) => {
+      if (e.keyCode === 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        // alert('captured');
+        this.updateMyCanvas()
 
-    makeCanvas().then(dataURL => {
-      if (this.props.isShare) return;
-      this.setState({
-        PREVIEW: dataURL
-      })
-    })
+      }
+    }, false);
+    // makeCanvas().then(dataURL => {
+    //   if (this.props.isShare) return;
+    //   this.setState({
+    //     PREVIEW: dataURL
+    //   })
+    //   console.log(dataURL);
+
+    // })
+
+
   }
 
   updateMyCanvas = () => {
@@ -271,7 +281,7 @@ class CanvasModel extends React.Component {
                             key={element.note_id}
                             className={classes.paper}
                           >
-                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} NoteField={_.startCase((canvas_type==="lean_canvas"?"LMC":"BMC")+" "+column.category.split("-").join(" "))} />
+                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} NoteField={_.startCase((canvas_type === "lean_canvas" ? "LMC" : "BMC") + " " + column.category.split("-").join(" "))} />
                           </div>
                         )}
                       </Draggable>
@@ -289,16 +299,16 @@ class CanvasModel extends React.Component {
         {canvas &&
           <DragDropContext onDragEnd={this.onDragEnd}>
             <Grid container alignItems="stretch">
-            
+
               {canvas_style[canvas.canvas_type].map(column => {
-                if (!column.isCompound) return NoteColumn(column,canvas.canvas_type);
+                if (!column.isCompound) return NoteColumn(column, canvas.canvas_type);
                 else
                   return (
                     <Grid key={column.id} item lg={column.width} xs={12} container>
                       {column.items.map(subCol => {
                         return (
                           <div style={{ width: "100%" }} key={subCol.id}>
-                            {NoteColumn(subCol,canvas.canvas_type)}
+                            {NoteColumn(subCol, canvas.canvas_type)}
                           </div>
                         );
                       })}
