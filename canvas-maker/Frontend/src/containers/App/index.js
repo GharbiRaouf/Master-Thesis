@@ -17,7 +17,7 @@ import Designer from '../../components/Canvas/CanvasDesigner';
 import NotFound from '../../components/NotFound';
 
 // import { DetermineAuth } from '../../components/DetermineAuth';
-import { requireAuthentication } from '../../components/AuthenticatedComponent';
+// import { requireNoAuthentication } from '../../components/AuthenticatedComponent';
 import { requireNoAuthentication } from '../../components/notAuthenticatedComponent';
 
 
@@ -40,44 +40,44 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
 
                         <Switch>
                             <Route exact path="/A/" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/A/main" component={requireAuthentication(ProtectedView)} />
+                            <Route path="/A/main" component={requireNoAuthentication(ProtectedView)} />
                             <Route path="/A/login" component={requireNoAuthentication(LoginView)} />
                             <Route path="/A/register" component={requireNoAuthentication(RegisterView)} />
-                            <Route path="/A/editaccount" component={requireAuthentication(EditAccountView)} />
+                            <Route path="/A/editaccount" component={requireNoAuthentication(EditAccountView)} />
                             <Route path="/A/home" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/A/dashboard" component={requireAuthentication(Dashboard)} />
-                            <Route path="/A/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/A/dashboard" component={requireNoAuthentication(Dashboard)} />
+                            <Route path="/A/designer/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/share/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/A/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/B/" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/B/main" component={requireAuthentication(ProtectedView)} />
+                            <Route path="/B/main" component={requireNoAuthentication(ProtectedView)} />
                             <Route path="/B/login" component={requireNoAuthentication(LoginView)} />
                             <Route path="/B/register" component={requireNoAuthentication(RegisterView)} />
-                            <Route path="/B/editaccount" component={requireAuthentication(EditAccountView)} />
+                            <Route path="/B/editaccount" component={requireNoAuthentication(EditAccountView)} />
                             <Route path="/B/home" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/B/dashboard" component={requireAuthentication(Dashboard)} />
-                            <Route path="/B/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/B/dashboard" component={requireNoAuthentication(Dashboard)} />
+                            <Route path="/B/designer/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/B/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/C/" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/C/main" component={requireAuthentication(ProtectedView)} />
+                            <Route path="/C/main" component={requireNoAuthentication(ProtectedView)} />
                             <Route path="/C/login" component={requireNoAuthentication(LoginView)} />
                             <Route path="/C/register" component={requireNoAuthentication(RegisterView)} />
-                            <Route path="/C/editaccount" component={requireAuthentication(EditAccountView)} />
+                            <Route path="/C/editaccount" component={requireNoAuthentication(EditAccountView)} />
                             <Route path="/C/home" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/C/dashboard" component={requireAuthentication(Dashboard)} />
-                            <Route path="/C/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/C/dashboard" component={requireNoAuthentication(Dashboard)} />
+                            <Route path="/C/designer/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/C/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/D/" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/D/main" component={requireAuthentication(ProtectedView)} />
+                            <Route path="/D/main" component={requireNoAuthentication(ProtectedView)} />
                             <Route path="/D/login" component={requireNoAuthentication(LoginView)} />
                             <Route path="/D/register" component={requireNoAuthentication(RegisterView)} />
-                            <Route path="/D/editaccount" component={requireAuthentication(EditAccountView)} />
+                            <Route path="/D/editaccount" component={requireNoAuthentication(EditAccountView)} />
                             <Route path="/D/home" component={requireNoAuthentication(HomeContainer)} />
-                            <Route path="/D/dashboard" component={requireAuthentication(Dashboard)} />
-                            <Route path="/D/designer/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/D/dashboard" component={requireNoAuthentication(Dashboard)} />
+                            <Route path="/D/designer/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/D/trydesigner" component={requireNoAuthentication(Designer)} />
 
 
