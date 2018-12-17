@@ -1,7 +1,7 @@
 from flask import request, jsonify, g
 from ..utils.auth import generate_token, requires_auth, verify_token
 from ..api import api as api_bp
-from ..models import Canvas, Notes
+from ..models import Canvas, Notes,User
 import nanoid
 from random import choice
 import time
@@ -23,6 +23,10 @@ def destroy_tests():
     Canvas.delete_many({"canvas_name": {'$regex': '.*est.*'}})
     return jsonify(response="DONE")
 
+@api_bp.route("/d_n_a_u", methods=["GET"])
+def destroy_all_anonymous_users():
+    User.remove({})
+    return jsonify(response="DONE")
 
 @api_bp.route("/d_n_a_n", methods=["GET"])
 def destroy_no_author_notes():
