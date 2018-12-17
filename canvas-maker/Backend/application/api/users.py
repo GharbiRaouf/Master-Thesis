@@ -1,7 +1,7 @@
 from flask import request, jsonify, g
 from ..utils.auth import generate_token, requires_auth, verify_token
 from ..api import api as api_bp
-from ..models import User, Canvas
+from ..models import User, Canvas,Notes
 from ..api.constants import CanvasInitializer
 from ..pusherconfig.pcfg import pusher
 
@@ -32,6 +32,10 @@ def create_user():
         return jsonify(message="User with that email already exists"), 409
     try:
         for canvas in default_canvas:
+            for n in canvas["canvas_notes"]:
+                nn["note_author"]=incoming["email"]
+                nn=Note(n) 
+                nn.save()   
             c = Canvas(canvas)
             c.save()
     except Exception:

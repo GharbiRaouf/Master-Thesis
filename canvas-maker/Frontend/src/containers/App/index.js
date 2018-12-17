@@ -47,7 +47,7 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/A/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/A/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/A/designer/:canvas_id" component={requireAuthentication(Designer)} />
-                            <Route path="/A/share/:canvas_id" component={requireAuthentication(Designer)} />
+                            <Route path="/share/:canvas_id" component={requireNoAuthentication(Designer)} />
                             <Route path="/A/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/B/" component={requireNoAuthentication(HomeContainer)} />
@@ -58,7 +58,6 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/B/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/B/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/B/designer/:canvas_id" component={requireAuthentication(Designer)} />
-                            <Route path="/B/share/:canvas_id" component={requireAuthentication(Designer)} />
                             <Route path="/B/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/C/" component={requireNoAuthentication(HomeContainer)} />
@@ -69,7 +68,6 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/C/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/C/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/C/designer/:canvas_id" component={requireAuthentication(Designer)} />
-                            <Route path="/C/share/:canvas_id" component={requireAuthentication(Designer)} />
                             <Route path="/C/trydesigner" component={requireNoAuthentication(Designer)} />
 
                             <Route exact path="/D/" component={requireNoAuthentication(HomeContainer)} />
@@ -80,7 +78,6 @@ class App extends React.Component { // eslint-disable-line react/prefer-stateles
                             <Route path="/D/home" component={requireNoAuthentication(HomeContainer)} />
                             <Route path="/D/dashboard" component={requireAuthentication(Dashboard)} />
                             <Route path="/D/designer/:canvas_id" component={requireAuthentication(Designer)} />
-                            <Route path="/D/share/:canvas_id" component={requireAuthentication(Designer)} />
                             <Route path="/D/trydesigner" component={requireNoAuthentication(Designer)} />
 
 

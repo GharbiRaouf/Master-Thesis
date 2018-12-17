@@ -119,6 +119,12 @@ class Dashboard extends React.Component {
             canvas_notes:arr
         })
     })
+    canvas_channel.bind('notice_me_master',data=>{
+        alert(data,"deleted")
+      this.setState({
+        canvas_notes:[...this.state.canvas_notes,data]
+      })
+      })
     canvas_channel.bind('canvas_delete',data=>{
         let arr=canvas_notes;
         alert(data)

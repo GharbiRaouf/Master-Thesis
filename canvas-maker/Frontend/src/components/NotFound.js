@@ -21,7 +21,7 @@ class NotFound extends React.Component { // eslint-disable-line react/prefer-sta
     render() {
         return (
             <div className="col-md-8">
-                <h1>Not Found</h1>
+                <h1>Not a valid location</h1>
                 <h2>{'\tPerhaps You want to go one of these Links'}</h2>
                 {
                     ['A','B','C','D'].map((e,i)=>{

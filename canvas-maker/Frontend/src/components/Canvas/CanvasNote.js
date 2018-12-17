@@ -15,7 +15,7 @@ import green from "@material-ui/core/colors/green";
 // import Fab from "@material-ui/core/Fab";
 // import CheckIcon from "@material-ui/icons/Check";
 import GavelIcon from "@material-ui/icons/Gavel";
-import _ from "lodash";
+// import _ from "lodash";
 import Pusher from 'pusher-js';
 
 import { connect } from 'react-redux';
@@ -96,7 +96,6 @@ class CanvasNote extends React.Component {
         super(props);
         this.handleNoteTextChange = this.handleNoteTextChange.bind(this);
         this.openNoteModal = this.openNoteModal.bind(this);
-        this.handleDeleteNote = this.handleDeleteNote.bind(this);
 
     }
     componentDidMount() {
@@ -160,6 +159,7 @@ class CanvasNote extends React.Component {
                     })
                         .then((response) => {
                             console.log("ez",response["data"]);
+                            if (response["data"]["veridict"]!==-1)
                             // let R=response["data"]["quality"]["quality"] 
                             this.setState({
                                 pbloading: false,
@@ -172,19 +172,7 @@ class CanvasNote extends React.Component {
         }
     };
 
-    handleDeleteNote = () => {
-        if (this.props.isShare) return;
-        let index = this.props.Note;
-        const { NotesCards } = this.state;
-        let id = _.findIndex(NotesCards, { note_id: index });
-        NotesCards.splice(id, 1);
-        this.props.updateCanvas("canvas_notes", NotesCards)
-        this.props.mustSaveCanvas()
-
-        // this.setState({
-        //   NotesCards
-        // });
-    };
+    
     handleNoteTextChange = event => {
         if (this.props.isShare) return;
         
@@ -207,7 +195,8 @@ class CanvasNote extends React.Component {
         });
     };
     render() {
-        const { classes, isShare } = this.props;
+
+        const { classes, isShare,handleDeleteNote,Note } = this.props;
         const { pbloading, pbsuccess, ai_veridict } = this.state;
         const buttonClassname = classNames({
             [classes.pbbuttonpbSuccess]: pbsuccess || ai_veridict !== -1
@@ -220,7 +209,7 @@ class CanvasNote extends React.Component {
                         id="note_headline"
                         fullWidth
                         label="Headline"
-                        value={this.state.note_headline}
+                        value={this.props.Note.note_headline}
                         onChange={this.handleNoteTextChange}
                         margin="normal"
                         variant="outlined"
@@ -231,7 +220,7 @@ class CanvasNote extends React.Component {
                         multiline
                         fullWidth
                         label="Description"
-                        value={this.state.note_description}
+                        value={this.props.Note.note_description}
                         onChange={this.handleNoteTextChange}
                         margin="normal"
                         variant="outlined"
@@ -241,7 +230,7 @@ class CanvasNote extends React.Component {
                     <Button size="small" onClick={this.openNoteModal}>
                         More Options
                     </Button>
-                    <Button color="secondary" size="small" onClick={this.handleDeleteNote}>
+                    <Button color="secondary" size="small" onClick={handleDeleteNote.bind(this,Note)}>
                         Delete Note
                     </Button>
                 </CardActions>}

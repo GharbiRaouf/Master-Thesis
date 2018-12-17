@@ -62,10 +62,10 @@ export function create_new_canvas(canvas_type, token) {
     }, tokenConfig(token))
 }
 
-export function get_canvas_by_id(canvas_id, token) {
+export function get_canvas_by_id(canvas_id) {
     return axios.post(API_URL+'get_canvas_by_canvas_id', {
         "canvas_id": canvas_id,
-    }, tokenConfig(token))
+    })
 }
 
 

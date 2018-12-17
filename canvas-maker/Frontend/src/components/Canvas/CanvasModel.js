@@ -223,6 +223,19 @@ class CanvasModel extends React.Component {
     this.props.updateAndSaveCanvas(this.props.canvas, "rating_update", this.props.token)
 
   };
+  handleDeleteNote = (Note) => {
+    if (this.props.isShare) return;
+    let index = Note.note_id;
+    const { NotesCards } = this.state;
+    let id = _.findIndex(NotesCards, { note_id: index });
+    NotesCards.splice(id, 1);
+    this.props.updateCanvas("canvas_notes", NotesCards)
+    this.props.mustSaveCanvas()
+
+    this.setState({
+      NotesCards
+    });
+  };
 
   render() {
     const { classes, canvas, isShare } = this.props;
@@ -281,7 +294,7 @@ class CanvasModel extends React.Component {
                             key={element.note_id}
                             className={classes.paper}
                           >
-                            <CanvasNote isSmart={column.isSmart} isShare={this.props.isShare} Note={element} NoteField={_.startCase((canvas_type === "lean_canvas" ? "LMC" : "BMC") + " " + column.category.split("-").join(" "))} />
+                            <CanvasNote handleDeleteNote={this.handleDeleteNote} isSmart={column.isSmart} isShare={this.props.isShare} Note={element} NoteField={_.startCase((canvas_type === "lean_canvas" ? "LMC" : "BMC") + " " + column.category.split("-").join(" "))} />
                           </div>
                         )}
                       </Draggable>

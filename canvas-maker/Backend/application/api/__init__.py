@@ -1,5 +1,10 @@
 from flask import Blueprint, jsonify, render_template
 
+DL_SERVER_URL="http://h2793844.stratoserver.net:8000/"
+# DL_SERVER_URL="http://h2793844.stratoserver.net:8000/"
+
+
+
 api = Blueprint('api_db', __name__)
 
 from . import users, canvas

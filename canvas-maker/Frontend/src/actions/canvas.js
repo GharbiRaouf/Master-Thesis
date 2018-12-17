@@ -46,7 +46,7 @@ export function createNewCanvas(canvas_type, token,g) {
 export function setCanvasToEdit(canvas_id, token) {
     return (dispatch) => {
         dispatch(fetchingCanvasData());
-        get_canvas_by_id(canvas_id, token).then((response) => {
+        get_canvas_by_id(canvas_id).then((response) => {
             return parseJSON(response)
 
         })

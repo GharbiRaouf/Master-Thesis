@@ -1,6 +1,6 @@
 from flask import request, jsonify, g
 from ..utils.auth import generate_token, requires_auth, verify_token
-from ..api import api as api_bp
+from ..api import api as api_bp,DL_SERVER_URL
 from ..models import Canvas, Notes,User
 import nanoid
 from random import choice
@@ -78,7 +78,6 @@ def get_new_cavas():
 
 
 @api_bp.route("/get_canvas_by_canvas_id", methods=["POST"])
-@requires_auth
 def get_canvas_by_canvas_id():
     try:
         canvas_id = request.get_json()["canvas_id"]
@@ -204,20 +203,22 @@ def list_notes():
 @api_bp.route("/force_update", methods=["POST"])
 def force_update():
     note_to_force = request.get_json()['note_to_force']
+    veridict= {
+        "note_id":note_to_force["note_id"],
+        "veridict":note_to_force["note_admin_rating"]
+    }
     try:
         Notes.find_one_and_update({"note_id": note_to_force["note_id"]}, {
             "$set": {"note_admin_rating": note_to_force["note_admin_rating"],
                      "note_admin_suggestion": note_to_force["note_admin_suggestion"],
+                     "note_ai_rating": note_to_force["note_admin_rating"],
                      "note_is_supervised": note_to_force["note_is_supervised"]}})
-        veridict= {
-            "note_id":note_to_force["note_id"],
-            "veridict":note_to_force["note_admin_rating"]
-        }
-        return jsonify(success=True)
+        succ=True
     except Exception:
-        return jsonify(success=False)
+        succ=False
     finally:
         pusher.trigger(u'canvas', u'master_noticed_you', veridict)
+        return jsonify(success=succ)
 
 
 @api_bp.route("/optimize_text", methods=["POST"])
@@ -238,7 +239,7 @@ def optimize_text():
         else:
             dictToSend = {'canvas_field': canvas_field}
             res = API_REQUESTS.post(
-                'http://localhost:8000/suggest_description', json=dictToSend)
+                DL_SERVER_URL+'suggest_description', json=dictToSend)
             dictFromOtherServer = res.json()
             resp = dictFromOtherServer["response"]
     except Exception:
@@ -274,79 +275,48 @@ def parse_rating(s):
 
 @api_bp.route("/qualify_headline", methods=["POST"])
 def qualify_headline():
-    # headline = request.get_json()['headline']
-    # note_type = request.get_json()['note_type']
-    # notes_to_optimize = request.get_json()['notes_to_optimize']
-    # dictFromOtherServer = {"quality": ["red", "Not enough input text"]}
-    # try:
-    #     restored_note = Notes.find_one(
-    #         {"note_id": notes_to_optimize["note_id"]}, {"_id": 0})
-    # except Exception as D:
-    #     restored_note = notes_to_optimize
-    # try:
-    #     if restored_note["note_is_supervised"]:
-    #         # notes_to_optimize["note_ai_suggestion"] = restored_note["note_admin_suggestion"]
-    #         notes_to_optimize["note_is_supervised"] = True
-    #         dictFromOtherServer = {"quality": parse_rating(restored_note["note_admin_rating"])}
-    #     else:
-    #         dictToSend = {
-    #             "headline": headline,
-    #             "note_type": note_type}
-    #         res = API_REQUESTS.post(
-    #             'http://localhost:8000/qualify_notes_headline', json=dictToSend)
-
-    #         dictFromOtherServer = res.json()
-    # finally:
-    #     try:
-    #         notes_to_optimize["note_ai_rating"] = dictFromOtherServer
-    #         pusher.trigger(u'canvas', u'note_field_update', notes_to_optimize)
-    #         Notes.find_one_and_replace(
-    #             {"note_id": notes_to_optimize["note_id"]}, notes_to_optimize)
-    #     except Exception as e:
-    #         pass
-        # finally:
-        #     return jsonify(quality=dictFromOtherServer)
     group=request.get_json()['group']
     note_content=request.get_json()['note_content']
     note_field=request.get_json()['note_field']
-    # dictFromOtherServer = {"quality": ["red", "Not enough input text"]}
-    dictFromOtherServer = {"veridict": -1} 
+    dictFromOtherServer = {"veridict": -1}
 
     try:
         restored_note = Notes.find_one(
             {"note_id": note_content["note_id"]}, {"_id": 0})
     except Exception as D:
         restored_note = note_content
+
     try:
         if restored_note["note_is_supervised"] or group in "CD":
             note_content["note_is_supervised"] = True
-            dictFromOtherServer = {"quality": parse_rating(restored_note["note_admin_rating"])}
+            if restored_note["note_admin_rating"] ==None:
+                dictFromOtherServer = {"veridict":-1 }
             pusher.trigger(u'canvas', u'notice_me_master', note_content)
-        
-        else:
-            dictToSend = {
-                "headline": note_content["note_headline"],
-                "note_type": note_field}
-            res = API_REQUESTS.post(
-                'http://localhost:8000/qualify_notes_headline', json=dictToSend)
 
-            dictFromOtherServer = res.json()
-            veridict= {
-                "note_id":note_content["note_id"],
-                "veridict":dictFromOtherServer["qualit"]
-            }
-            return jsonify(veridict=veridict)
-        
+        else:
             try:
+                dictToSend = {
+                    "headline": note_content["note_headline"],
+                    "note_type": note_field}
+                res = API_REQUESTS.post(
+                    DL_SERVER_URL+'qualify_notes_headline', json=dictToSend)
+
+                dictFromOtherServer = res.json()
+                veridict= {
+                    "note_id":note_content["note_id"],
+                    "veridict":dictFromOtherServer["veridict"]
+                }
+
                 note_content["note_ai_rating"] = dictFromOtherServer
                 pusher.trigger(u'canvas', u'note_field_update', note_content)
                 Notes.find_one_and_replace(
                     {"note_id": note_content["note_id"]}, note_content)
             except Exception as e:
-                return  jsonify(veridict=dictFromOtherServer["quality"])
+                return  jsonify(veridict=dictFromOtherServer["veridict"])
     except Exception as Es:
         print(Es)
     finally:
-        return  jsonify(veridict=dictFromOtherServer["quality"])
+        return  jsonify(veridict=dictFromOtherServer["veridict"])
+
         
 
