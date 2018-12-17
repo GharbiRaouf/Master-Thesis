@@ -26,7 +26,8 @@ function mapDispatchToProps(dispatch) {
 
 class Home extends React.Component {
     constructor(props) {
-        this.setState({ dirr: props.location.pathname[1] })
+        super(props)
+        this.state={ dirr: props.location.pathname[1] }
         this.skipRegister=this.skipRegister.bind(this)
     }
     state = {
