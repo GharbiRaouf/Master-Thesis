@@ -22,10 +22,11 @@ export function get_github_access() {
     );
 }
 
-export function create_user(email, password) {
+export function create_user(email, password,user_group) {
     return axios.post(API_URL+'create_user', {
         email,
         password,
+        user_group
     });
 }
 
@@ -37,10 +38,11 @@ export function update_user(email, password, username, token) {
     }, tokenConfig(token));
 }
 
-export function get_token(email, password) {
+export function get_token(email, password,user_group) {
     return axios.post(API_URL+'get_token', {
         email,
         password,
+        user_group
     });
 }
 export async function disconnect(token) {

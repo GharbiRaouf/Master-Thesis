@@ -2,8 +2,10 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid'
 import { Card, CardActions, Typography, Button, Modal } from '@material-ui/core';
 import Register from "../RegisterView"
+import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 // import { withRouter } from 'react-router-dom'
+import nanoid from 'nanoid'
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
@@ -34,10 +36,11 @@ class Home extends React.Component {
         })
     }
     skipRegister = () => {
-        this.props.registerAnonymousUser();
+        this.props.loginUser("anonymous"+nanoid(5)+"@canvas.com", "@canvas2018", this.props.location.pathname[1]);
+        this.props.changePage("/"+this.props.location.pathname[1]+'/main');
+
         this.props.makeAnonymousCanvas(this.state.canvas_type)
-        this.openRegister();
-        this.props.changePage('/trydesigner/')
+        this.openRegister(this.state.canvas_type);
     }
     render() {
         return <section>
@@ -50,7 +53,7 @@ class Home extends React.Component {
                                 <CardActions >
                                     <Typography variant="display4">
                                         Try <br />  Business <br /> Canvas
-                            </Typography>
+                                    </Typography>
                                 </CardActions>
                             </Button>
                         </Card>
@@ -87,4 +90,4 @@ class Home extends React.Component {
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default withRouter (connect(mapStateToProps, mapDispatchToProps)(Home))

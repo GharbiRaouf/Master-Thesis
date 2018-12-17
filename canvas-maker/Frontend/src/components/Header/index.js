@@ -84,7 +84,7 @@ class Header extends React.Component {
             dr_open: false,
             anchorEl: null
         });
-        this.props.changePage(route)
+        this.props.changePage("/"+this.props.location.pathname[1]+route)
     }
 
 
@@ -137,6 +137,10 @@ class Header extends React.Component {
                             </MenuItem>
                             </div>
                     }
+                    <MenuItem onClick={() => this.dispatchNewRoute('/'+ this.props.location.pathname[1])}>
+                        Home
+                        </MenuItem>
+                    <Divider />
 
                     <MenuItem onClick={()=>this.props.ShowCanvasHelper()}>
                         Tutorial
@@ -201,7 +205,7 @@ class Header extends React.Component {
                                     open={open}
                                     onClose={this.handleMenuClose}
                                 >
-                                    <MenuItem onClick={() => this.dispatchNewRoute('/main')}>Profile</MenuItem>
+                                    <MenuItem onClick={() => this.dispatchNewRoute("/"+this.props.location.pathname[1]+'/main')}>Profile</MenuItem>
                                     <MenuItem onClick={() => this.dispatchNewRoute('/editaccount')}>Account Settings</MenuItem>
                                 </Menu>
                             </div>

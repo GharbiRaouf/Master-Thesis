@@ -33,8 +33,8 @@ export const getDroppableStyle = isDraggingOver => ({
 export const getItemStyle = (draggableStyle, isDragging) => ({
     // some basic styles to make the items look a bit nicer
     userSelect: "none",
-    padding: 0,
-    margin: `0 0 0px 0`,
+    // padding: 0,
+    // margin: `0 0 0px 0`,
     filter: isDragging ? "blur(1px)" : "none",
 
     // styles we need to apply on draggables

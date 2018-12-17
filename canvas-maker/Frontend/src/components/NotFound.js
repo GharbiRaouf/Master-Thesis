@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom'
+import { withRouter ,Link} from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/auth';
 
@@ -22,6 +22,12 @@ class NotFound extends React.Component { // eslint-disable-line react/prefer-sta
         return (
             <div className="col-md-8">
                 <h1>Not Found</h1>
+                <h2>{'\tPerhaps You want to go one of these Links'}</h2>
+                {
+                    ['A','B','C','D'].map((e,i)=>{
+                        return <div><Link key={i} to={"/"+e}>Group {e}</Link><br/></div>
+                    })
+                }
             </div>
         );
     }

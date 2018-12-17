@@ -1,57 +1,32 @@
 import React from "react";
+import classNames from "classnames";
 import PropTypes from "prop-types";
-
-//Material imports
 import { withStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
+import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
-import Popover from "@material-ui/core/Popover";
-import IconButton from "@material-ui/core/IconButton";
+import CardContent from "@material-ui/core/CardContent";
+import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import Input from "@material-ui/core/Input";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ColorLensIcon from "@material-ui/icons/ColorLens";
-import InfoIcon from "@material-ui/icons/Info";
-import CloseIcon from "@material-ui/icons/Close";
-import { Popper, Chip, Avatar, MenuItem, ClickAwayListener } from "@material-ui/core"
-import SearchIcon from "@material-ui/icons/Search";
-import DoneIcon from "@material-ui/icons/Done";
-import { Typography } from "@material-ui/core";
-
-
-//Misc
-import { BeautifulColors, CanvasModelStyles } from "./assets/canvasstyle.jsx"
+import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
+import Modal from "@material-ui/core/Modal";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import green from "@material-ui/core/colors/green";
+// import Fab from "@material-ui/core/Fab";
+// import CheckIcon from "@material-ui/icons/Check";
+import GavelIcon from "@material-ui/icons/Gavel";
 import _ from "lodash";
+import Pusher from 'pusher-js';
 
-import timeago from "timeago.js";
-import Axios from "axios";
-
-//redux
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/canvas';
 import { API_URL } from "../../constants/utils.js";
+import Axios from "axios";
 
-const Channel_Suggestions = [
-    {
-        "headline": "",
-        "description": "",
-    },
-    {
-        "headline": "Social Media - Facebook",
-        "description": "Our Company  Facebook Page",
-    },
-    {
-        "headline": "Webpage ",
-        "description": "Our Company Page and our Ads ",
-    },
-    {
-        "headline": "E-mail Marketing",
-        "description": "Sending Email to customers",
-    }
-]
+
 
 function mapStateToProps(state) {
     return {
@@ -68,9 +43,86 @@ function mapDispatchToProps(dispatch) {
     return bindActionCreators(actionCreators, dispatch);
 }
 
+const styles = theme => ({
+    modalCard: {
 
-export class CanvasNote extends React.Component {
+        top: "30%",
+        left: "40%"
+    },
+    pbroot: {
+        display: "flex",
+        alignItems: "center"
+    },
+    pbwrapper: {
+        margin: theme.spacing.unit,
+        position: "relative"
+    },
+    pbbuttonpbSuccess: {
+        backgroundColor: green[500],
+        "&:hover": {
+            backgroundColor: green[700]
+        }
+    },
+    pbfabProgress: {
+        color: green[500],
+        position: "absolute",
+        top: -6,
+        left: -6
+    },
+    pbbuttonProgress: {
+        color: green[500],
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        marginTop: -12,
+        marginLeft: -12
+    },
+    modalpaper: {
+        position: "absolute",
+        width: theme.spacing.unit * 50,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing.unit * 4
+    },
+
+    card: {
+        minWidth: 100,
+        marginBlockEnd: 5
+    }
+});
+
+class CanvasNote extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleNoteTextChange = this.handleNoteTextChange.bind(this);
+        this.openNoteModal = this.openNoteModal.bind(this);
+        this.handleDeleteNote = this.handleDeleteNote.bind(this);
+
+    }
+    componentDidMount() {
+        var pusher = new Pusher('c2d71706fcd3133d8f57', {
+            cluster: 'eu',
+            forceTLS: true
+          });
+          
+          
+        var canvas_channel = pusher.subscribe('canvas');
+        canvas_channel.bind('master_noticed_you', data => {
+            if (data["note_id"]===this.props.Note_note_id){
+            alert("Your Note Veridict was: "+JSON.stringify(data))
+            if(data["veridict"]!= null)
+            this.setState({
+                pbloading: false,
+                pbsuccess: true,
+                ai_veridict: JSON.stringify(data)
+            })}
+        });
+    }
+
     state = {
+        name: "eaz",
+        openNM: false,
+        ai_veridict: -1,
         NotesCards: this.props.canvas ? this.props.canvas.canvas_notes ? this.props.canvas.canvas_notes : [] : [],
 
         note_headline_popper_anchor: null,
@@ -85,180 +137,44 @@ export class CanvasNote extends React.Component {
         result_suggestion_for_headline: null,
         result_suggestion_for_description: null,
     };
-    format_response = (result_suggestion_for_headline) => {
-        const { NoteField } = this.props;
-        var resultof="";
-        try{
-            var judgement = result_suggestion_for_headline[0]
-            var rating = (Number(result_suggestion_for_headline[1])).toFixed(2);
-            if(isNaN(result_suggestion_for_headline[1])) rating = result_suggestion_for_headline[1];
-            // console.log(NoteField,judgement,rating,(NoteField.indexOf("Problem") >= 0),(rating >= 50) );
-
-            resultof = (judgement === "green" ? "This is a good Note. " : "This needs adjustment. ") + '[ rating:' + rating + "]";
-            if(!isNaN(result_suggestion_for_headline[1])){
-                if (NoteField.indexOf("Problem") >= 0) { resultof += rating >= 50 ? "" : " [This may not be an appropriate Problem Statement] " }
-                else resultof += rating >= 50 ? " [This may be an appropriate Solution Statement] " : ""
-            }
-        }catch (e) {
-            resultof=result_suggestion_for_headline
-        }
-        return resultof
-    }
-    handle_open_headline_popper = (event, isSmart, isChannel) => {
-        if (this.props.isShare) return;
-        // if ((isSmart) || (isChannel))
-            this.setState({
-                note_headline_popper_anchor: event.currentTarget,
-                fetching_note_headline_rate: false,
-                received_note_headline_rate: false,
-                result_suggestion_for_headline: null,
-
-            })
-    }
-
-    handle_open_description_popper = (event, isSmart, isChannel) => {
-        if (this.props.isShare) return;
-        if ((isSmart) || (isChannel))
-            this.setState({
-                note_description_popper_anchor: event.currentTarget,
-                fetching_note_description_rate: false,
-                received_note_description_rate: false,
-                result_suggestion_for_description: null,
-            })
-    }
-
-    handle_close_headline_popper = () => {
-        if (this.props.isShare) return;
+    openNoteModal = event => {
         this.setState({
-            note_headline_popper_anchor: null,
-            fetching_note_headline_rate: false,
-            received_note_headline_rate: false,
-            result_suggestion_for_headline: this.props.Note.note_color
-        })
-    }
-
-    handle_close_description_popper = () => {
-        if (this.props.isShare) return;
-        this.setState({
-            note_description_popper_anchor: null,
-            fetching_note_description_rate: false,
-            received_note_description_rate: false,
-            result_suggestion_for_description: ""
-        })
-    }
-
-    handle_confirm_headline_suggestion = (isChannel) => {
-        if (this.props.isShare) return;
-        if (isChannel) this.handleNoteDescriptionChange(this.props.Note.note_id, "note_headline", this.state.result_suggestion_for_headline);
-        this.handle_close_headline_popper();
-    }
-
-    handle_confirm_description_suggestion = () => {
-        if (this.props.isShare) return;
-        this.handleNoteDescriptionChange(this.props.Note.note_id, "note_description", this.state.result_suggestion_for_description);
-        this.handle_close_description_popper();
-    }
-
-    start_enhancing_headline_field = (isChannel) => {
-        if (this.props.isShare) return;
-        this.setState({
-            fetching_note_headline_rate: true,
-            received_note_headline_rate: false,
-            result_suggestion_for_headline: this.props.Note.note_color
-
-        })
-        if (isChannel) {
-            var index = Math.floor(Math.random() * Channel_Suggestions.length);
-            this.setState({
-                fetching_note_headline_rate: false,
-                received_note_headline_rate: true,
-                result_suggestion_for_headline: Channel_Suggestions[index].headline,
-            })
-
-            return;
-        }
-        Axios.post(API_URL+"qualify_headline", {
-            headline: this.props.Note.note_headline,
-            note_type: this.props.Note.note_position,
-            notes_to_optimize: this.props.Note
-
-        }).then(response => {
-            let qlt=""
-            if (response.data["quality"])
-                if(response.data["quality"]["quality"])
-                    qlt=response.data["quality"]["quality"]
-                else
-                    qlt=response.data["quality"]
-            this.setState({
-                fetching_note_headline_rate: false,
-                received_note_headline_rate: true,
-                result_suggestion_for_headline: qlt,
-            })
-
-            this.handleNoteDescriptionChange(this.props.Note.note_id,"note_ai_rating",qlt)
-
-        })
-    }
-    start_enhancing_description_field = (isChannel) => {
-        // console.log(this.props.NoteField);
-
-        if (this.props.isShare) return;
-        this.setState({
-            fetching_note_description_rate: true,
-            received_note_description_rate: false,
-            result_suggestion_for_description: this.props.Note.note_color
-
-        })
-        if (isChannel) {
-            var index = Math.floor(Math.random() * Channel_Suggestions.length);
-            this.setState({
-                fetching_note_description_rate: false,
-                received_note_description_rate: true,
-                result_suggestion_for_description: Channel_Suggestions[index].description,
-            })
-
-            return;
-        }
-        //API CALL
-        Axios.post(API_URL+"optimize_text", {
-            // "canvas_field": field,
-            "canvas_field": this.props.NoteField,
-            "notes_to_optimize": this.props.Note
-        }).then(response => {
-            this.setState({
-                fetching_note_description_rate: false,
-                received_note_description_rate: true,
-                result_suggestion_for_description: response.data.suggestions,
-
-            })
-            this.handleNoteDescriptionChange(this.props.Note.note_id,"note_ai_suggestion",response.data.suggestions)
-        })
-
-    }
-
-    //#region Notes Functions
-    handleNoteDescriptionChange = (id, field, event) => {
-        if (this.props.isShare) return;
-        const { NotesCards } = this.state;
-        let fieldUpdate = event.target ? event.target.value : event
-        for (var i in NotesCards) {
-            if (NotesCards[i].note_id === id) {
-                NotesCards[i][field] = fieldUpdate;
-                NotesCards[i]["note_author"]=this.props.userEmail
-                break;
-            }
-        }
-        this.props.updateCanvas("canvas_notes", NotesCards)
-        this.props.mustSaveCanvas();
-        // if (field === "note_headline") this.setState({
-        //     note_headline_popper_anchor: event.currentTarget
-        // })
-        // if (field === "note_description") this.setState({
-        //     note_description_popper_anchor: event.currentTarget
-        // })
+            pbloading: false,
+            pbsuccess: false,
+            openNM: !this.state.openNM
+        });
     };
-    handleDeleteNote = index => {
+    handlepbButtonClick = () => {
+        if (!this.state.pbloading) {
+            this.setState(
+                {
+                    pbsuccess: false,
+                    pbloading: true
+                },
+                () => {
+                    Axios.post(API_URL + "qualify_headline", {
+                        "group": this.props.location.pathname[1],
+                        "note_content": this.props.Note,
+                        "note_field": this.props.NoteField
+
+                    })
+                        .then((response) => {
+                            console.log("ez",response["data"]);
+                            // let R=response["data"]["quality"]["quality"] 
+                            this.setState({
+                                pbloading: false,
+                                pbsuccess: true,
+                                ai_veridict: JSON.stringify(response["data"])
+                            });
+                        });
+                }
+            );
+        }
+    };
+
+    handleDeleteNote = () => {
         if (this.props.isShare) return;
+        let index = this.props.Note;
         const { NotesCards } = this.state;
         let id = _.findIndex(NotesCards, { note_id: index });
         NotesCards.splice(id, 1);
@@ -269,317 +185,157 @@ export class CanvasNote extends React.Component {
         //   NotesCards
         // });
     };
-    handleExpandColorsClick = (id, event) => {
+    handleNoteTextChange = event => {
+        if (this.props.isShare) return;
+        
         if (this.props.isShare) return;
         const { NotesCards } = this.state;
+        let fieldUpdate = event.target ? event.target.value : event
         for (var i in NotesCards) {
-            if (NotesCards[i].note_id === id) {
-                NotesCards[i].expanded = !Boolean(NotesCards[i].expanded);
-                break;
-            }
-        }
-        // this.props.updateCanvas("canvas_notes", NotesCards)
-        this.setState({
-            colorsButtonAnchor: event ? event.currentTarget : null,
-            // NotesCards
-        });
-    };
-    handleExpandInfoClick = (id, event) => {
-        if (this.props.isShare) return;
-        const { NotesCards } = this.state;
-        for (var i in NotesCards) {
-            if (NotesCards[i].note_id === id) {
-                NotesCards[i].note_info_expanded = !Boolean(NotesCards[i].note_info_expanded);
+            if (NotesCards[i].note_id === this.props.Note.note_id) {
+                NotesCards[i][event.target.id] = fieldUpdate;
+                NotesCards[i]["note_author"] = this.props.userEmail
                 break;
             }
         }
         this.props.updateCanvas("canvas_notes", NotesCards)
+        this.props.mustSaveCanvas();
+        // console.log(event.target);
         this.setState({
-            infoAnchorEl: event ? event.currentTarget : null,
-            // NotesCards
+            [event.target.id]: event.target.value,
+            ai_veridict: -1
         });
     };
-    handleNoteColorChange(item, color) {
-        const { NotesCards } = this.state;
-        for (var i in NotesCards) {
-            if (NotesCards[i].note_id === item) {
-                NotesCards[i].note_color = color;
-                NotesCards[i].expanded = !Boolean(NotesCards[i].expanded);
-                break;
-            }
-        }
-        this.props.mustSaveCanvas()
-        this.props.updateCanvas("canvas_notes", NotesCards)
-        this.setState({
-            colorsButtonAnchor: null,
-            // NotesCards
-        });
-    }
-    giveChannelSuggestion = (note_id, e) => {
-        if (e.headline !== "") {
-            //console.log(e);
-
-            this.handleNoteDescriptionChange(note_id, "note_headline", e.headline)
-            this.handleNoteDescriptionChange(note_id, "note_description", e.description)
-        }
-        this.setState({ note_headline_popper_anchor: null })
-    }
-
-    resetPoppers = () => {
-        this.setState({
-            note_headline_popper_anchor: null,
-            note_description_popper_anchor: null,
-
-            fetching_note_headline_rate: false,
-            fetching_note_description_rate: false,
-
-            received_note_headline_rate: false,
-            received_note_description_rate: false,
-
-            result_suggestion_for_headline: null,
-            result_suggestion_for_description: null,
-        })
-    }
-    //#endregion Notes Functions
-
-
     render() {
-        const {
-            colorsButtonAnchor,
-            infoAnchorEl,
-            note_headline_popper_anchor,
-            note_description_popper_anchor,
-            received_note_headline_rate,
-            received_note_description_rate,
-            result_suggestion_for_headline,
-            result_suggestion_for_description, } = this.state;
+        const { classes, isShare } = this.props;
+        const { pbloading, pbsuccess, ai_veridict } = this.state;
+        const buttonClassname = classNames({
+            [classes.pbbuttonpbSuccess]: pbsuccess || ai_veridict !== -1
+        });
 
-        const { Note, classes, isSmart } = this.props
-        const isChannel = this.props.NoteField ? this.props.NoteField.indexOf("Channel") >= 0 : false;
         return (
-            <div>
-                <Paper
-                    className={classes.paper}
-                    style={{
-                        backgroundColor: Note.note_color,
-                        borderStyle: "solid",
-                        borderColor: Boolean(result_suggestion_for_headline) ? result_suggestion_for_headline[0] : Note.note_color
-                    }}
-                >
-                    <Input
-                        disabled={this.props.isShare}
-                        type="text"
-                        style={{ overflowY: "hidden" }}
-                        disableUnderline={true}
+            <Card className={classes.card}>
+                <CardContent>
+                    <TextField
+                        id="note_headline"
                         fullWidth
-                        value={Note.note_headline}
-                        placeholder="Note headline"
-
-                        onClick={(e) => this.handle_open_headline_popper(e, isSmart, isChannel)}
-                        onChange={event =>
-                            this.handleNoteDescriptionChange(
-                                Note.note_id,
-                                "note_headline",
-                                event
-                            )
-                        }
+                        label="Headline"
+                        value={this.state.note_headline}
+                        onChange={this.handleNoteTextChange}
+                        margin="normal"
+                        variant="outlined"
                     />
-                    <Input
-                        disabled={this.props.isShare}
-                        value={Note.note_description}
-                        fullWidth
-                        onClick={(e) => this.handle_open_description_popper(e, isSmart, isChannel)}
-                        className={classes.resize}
-                        placeholder="Note Description"
+
+                    <TextField
+                        id="note_description"
                         multiline
-                        onChange={event =>
-                            this.handleNoteDescriptionChange(
-                                Note.note_id,
-                                "note_description",
-                                event
-                            )
-                        }
+                        fullWidth
+                        label="Description"
+                        value={this.state.note_description}
+                        onChange={this.handleNoteTextChange}
+                        margin="normal"
+                        variant="outlined"
                     />
-                    <CardActions
-                        className={classes.actions}
-                        disableActionSpacing
-                    >
-                        <IconButton
-                            aria-label="ColorLens"
-                            onClick={event =>
-                                this.handleExpandColorsClick(Note.note_id, event)
-                            }
-                        >
-                            <ColorLensIcon />
-                        </IconButton>
+                </CardContent>
+                {!isShare && <CardActions>
+                    <Button size="small" onClick={this.openNoteModal}>
+                        More Options
+                    </Button>
+                    <Button color="secondary" size="small" onClick={this.handleDeleteNote}>
+                        Delete Note
+                    </Button>
+                </CardActions>}
+                <Modal
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                    open={this.state.openNM}
+                    onClose={this.openNoteModal}
+                    className={classes.modalCard}>
 
-                        <IconButton
-                            aria-label="ColorLens"
-                            onClick={(event) =>
-                                this.handleExpandInfoClick(Note.note_id, event)
-                            }
-                        >
-                            <InfoIcon />
-                        </IconButton>
-                        <IconButton
-                            onClick={() =>
-                                this.handleDeleteNote(Note.note_id)
-                            }
-                            className={classes.expand}
-                            aria-label="Add to Deletes"
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    </CardActions>
-                    <Popover
-                        anchorEl={infoAnchorEl}
-                        open={Boolean(Note.note_info_expanded)}
-                        onClose={() => this.handleExpandInfoClick(Note.note_id, null)}
-                    >
-                        <div
-                            style={{ width: "100%", padding: 10 }}
-                        >
+                    <CardContent>
+                        <div style={{ maxWidth: "75%" }}>
+                            <Card
+                                className={classes.modalpaper}>
+                                <CardContent>
+                                    <Grid container zeroMinWidth>
+                                        <Grid item xs={8} zeroMinWidth>
+                                            <Typography color="primary" gutterBottom>
+                                                Note Headline
+                      </Typography>
+                                            <Typography variant="subheading" component="h2" gutterBottom>
+                                                {this.state.note_headline}
+                                            </Typography>
+                                            <Typography color="default">
+                                                Note Description
+                      </Typography>
+                                            <Typography component="p" noWrap>
+                                                {this.state.note_description}
+                                            </Typography>
+                                        </Grid>
 
-                            <Typography variant="caption"> Made By {Note.note_author}</Typography>
-                            <Typography variant="caption"> Last Edited :{timeago().format(Note.note_lastEdited)}</Typography>
-                            <Button mini fullWidth>Try AI</Button>
+                                        <Grid item xs={4} zeroMinWidth>
+
+                                            <Typography variant="caption" gutterBottom>
+                                                Submit your Headline to the AI
+                      </Typography>
+                                            <div className={classes.pbwrapper}>
+                                                <Button variant="fab"
+                                                    color="primary"
+                                                    className={buttonClassname}
+                                                    onClick={
+                                                        (ai_veridict !== -1 && (() => { })) ||
+                                                        (ai_veridict === -1 && this.handlepbButtonClick)
+                                                    }
+                                                >
+                                                    {ai_veridict !== -1 ? (
+                                                        <GavelIcon />
+                                                    ) : (
+                                                            <GavelIcon />
+                                                        )}
+                                                </Button>
+                                                {pbloading && (
+                                                    <CircularProgress
+                                                        size={68}
+                                                        className={classes.pbfabProgress}
+                                                    />
+                                                )}
+                                            </div>
+
+                                            <Typography variant="caption" gutterBottom>
+                                                AI Veridict
+                      </Typography>
+
+                                            {ai_veridict !== -1 && <Typography variant="caption" gutterBottom>
+                                                {
+                                                    JSON.stringify(ai_veridict)
+                                                }<br/>
+                                                {ai_veridict["veridict"] >= 50 ? "Wonderful Content" :( ai_veridict["veridict"]  >= 25 ? "Needs More Enhancement" : "Poor Reduction...")}
+                                            </Typography>}
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                                <CardActions>
+                                    <Button size="small" onClick={this.openNoteModal}>
+                                        Dismiss
+                  </Button>
+                                </CardActions>
+                            </Card>
                         </div>
-                    </Popover>
-                    <Popover
-                        anchorEl={colorsButtonAnchor}
-                        style={{ width: "100%" }}
-                        open={Boolean(Note.expanded)}
-                        onClose={() => this.handleExpandColorsClick(Note.note_id, null)}
-                    >
-                        <div style={{ width: "100%", padding: 10 }}
-                        >
-
-                            {BeautifulColors.map(e => {
-                                if (this.props.isShare) return null;
-                                return (
-                                    <Button
-                                        mini
-                                        key={e}
-                                        style={{
-                                            backgroundColor: e,
-                                            maxHeight: "10px",
-                                            maxWidth: "10px"
-                                        }}
-                                        onClick={() =>
-                                            this.handleNoteColorChange(
-                                                Note.note_id,
-                                                e
-                                            )
-                                        }
-                                    >
-
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    </Popover>
-                </Paper>
-                <ClickAwayListener onClickAway={this.resetPoppers}>
-                    <div>
-                        <Popper
-                            style={{ maxWidth: 200, zIndex: 2000 }}
-                            placement="right"
-                            disablePortal={true}
-                            modifiers={{
-                                flip: {
-                                    enabled: true
-                                },
-                                preventOverflow: {
-                                    enabled: false,
-                                    boundariesElement: "scrollParent"
-                                },
-                                arrow: {
-                                    enabled: true,
-                                    element: "arrowRef"
-                                }
-                            }}
-                            open={Boolean(note_headline_popper_anchor)}
-                            anchorEl={note_headline_popper_anchor}
-                        >
-                            {
-                                // note_headline_popper_anchor
-                                // fetching_note_headline_rate
-                                // received_note_headline_rate
-                                // result_suggestion_for_headline
-                            }
-                            {isChannel ?
-                                <Paper style={{ minWidth: "50px" }}>
-                                    {Channel_Suggestions.map((e, index) => <MenuItem key={index} onClick={() => this.giveChannelSuggestion(Note.note_id, e)} value={10}>{e.headline.length ? e.headline : "None"}</MenuItem>)}
-                                </Paper>
-                                // <Chip
-                                //     color="secondary"
-                                //     onDelete={received_note_headline_rate ? this.handle_confirm_headline_suggestion : () => this.start_enhancing_headline_field(isChannel)}
-                                //     deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                                //     avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                                //     label={!received_note_headline_rate ? "Do you want some Suggestions?" : result_suggestion_for_headline}
-                                // />
-                                : <Chip
-                                    color="secondary"
-                                    onDelete={received_note_headline_rate ? () => this.handle_confirm_headline_suggestion(isChannel) : () => this.start_enhancing_headline_field(isChannel)}
-                                    deleteIcon={<IconButton>{received_note_headline_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                                    avatar={<Avatar><CloseIcon onClick={this.handle_close_headline_popper} /></Avatar>}
-                                    label={!received_note_headline_rate ? "Do you want to verify this?" : this.format_response(result_suggestion_for_headline)}
-                                />
-                            }
-
-
-                        </Popper>
-                        <Popper
-                            style={{ maxWidth: 150, zIndex: 2000 }}
-                            placement="right"
-                            disablePortal={true}
-                            modifiers={{
-                                flip: {
-                                    enabled: true
-                                },
-                                preventOverflow: {
-                                    enabled: false,
-                                    boundariesElement: "scrollParent"
-                                },
-                                arrow: {
-                                    enabled: true,
-                                    element: "arrowRef"
-                                }
-                            }}
-                            open={Boolean(note_description_popper_anchor)}
-                            anchorEl={note_description_popper_anchor}
-                        >
-                            {
-                                // note_description_popper_anchor
-                                // fetching_note_description_rate
-                                // received_note_description_rate
-                                // result_suggestion_for_description
-                            }
-
-                            {isChannel ? null : <Chip
-                                color="primary"
-                                onDelete={received_note_description_rate ? this.handle_confirm_description_suggestion : () => this.start_enhancing_description_field(isChannel)}
-                                deleteIcon={<IconButton>{received_note_description_rate ? <DoneIcon /> : <SearchIcon />}</IconButton>}
-                                avatar={<Avatar><CloseIcon onClick={this.handle_close_description_popper} /></Avatar>}
-                                label={!received_note_description_rate ? "Do you want to try an AI suggestion?" : (result_suggestion_for_description)}
-                            />}
-
-
-                        </Popper>
-                    </div>
-                </ClickAwayListener>
-
-            </div >
-        )
+                    </CardContent>
+                </Modal>
+            </Card>
+        );
     }
 }
+
 
 
 CanvasNote.propTypes = {
     classes: PropTypes.object.isRequired
 };
 
+
 export default withRouter(compose(
-    withStyles(CanvasModelStyles),
+    withStyles(styles),
     connect(mapStateToProps, mapDispatchToProps),
 )(CanvasNote));

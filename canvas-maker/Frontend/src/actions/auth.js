@@ -68,15 +68,15 @@ export function redirectToRoute(route) {
     };
 }
 
-export function loginUser(email, password) {
+export function loginUser(email, password,group) {
     return function (dispatch) {
         dispatch(loginUserRequest());
-        return get_token(email, password)
+        return get_token(email, password,group)
             .then(parseJSON)
             .then(response => {
                 try {
                     dispatch(loginUserSuccess(response.token));
-                    dispatch(push('/main'));
+                    dispatch(push(group+'/main'));
                 } catch (e) {
                     alert(e);
                     dispatch(loginUserFailure({
@@ -125,7 +125,7 @@ export function updateUserFailure(error) {
     };
 }
 
-export function updateUser(email, password, username) {
+export function updateUser(email, password, username,g="A") {
     return function (dispatch) {
         dispatch(updateUserRequest());
         return update_user(email, password, username)
@@ -133,7 +133,7 @@ export function updateUser(email, password, username) {
         .then(response => {
                 try {
                     dispatch(updateUserSuccess(response.token));
-                    dispatch(push('/main'));
+                    dispatch(push(g+'/main'));
                 } catch (e) {
                     dispatch(updateUserFailure({
                         response: {
@@ -173,15 +173,15 @@ export function registerUserFailure(error) {
     };
 }
 
-export function registerUser(email, password) {
+export function registerUser(email, password,g="A") {
     return function (dispatch) {
         dispatch(registerUserRequest());
-        return create_user(email, password)
+        return create_user(email, password,g)
             .then(parseJSON)
             .then(response => {
                 try {
                     dispatch(registerUserSuccess(response.token));
-                    dispatch(push('/main'));
+                    dispatch(push(g+'/main'));
                 } catch (e) {
                     dispatch(registerUserFailure({
                         response: {

@@ -90,7 +90,7 @@ class Dashboard extends React.Component {
     });
     user_channel.bind('user_left', data =>{
       var users=this.state.users;
-      alert("user_left");
+      alert(data['user_detail']["email"]+" has disconnected!");
       for (let i = 0; i < users.length; i++) {
         if(users[i]["email"].toLowerCase()===data['user_detail']["email"].toLowerCase()){
           users.splice(i,1);

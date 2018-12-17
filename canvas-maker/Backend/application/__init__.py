@@ -20,7 +20,7 @@ def create_app(config_name):
     bcrypt.init_app(app)
 
 
-    @app.route('/', defaults={'path': ''})
+    @app.route('/adminship', defaults={'path': ''})
     def serve(path):
         if path != "" and os.path.exists("./backend_dashboard/build/" + path):
             return send_from_directory('./backend_dashboard/build', path)

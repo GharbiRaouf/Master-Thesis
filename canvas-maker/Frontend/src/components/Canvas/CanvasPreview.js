@@ -85,12 +85,12 @@ class Preview extends React.Component {
         }
     };
     setCanvas = (canvas_id) => {
-        this.props.changePage("/designer/" + canvas_id)
+        this.props.changePage("/"+this.props.location.pathname[1]+"/designer/" + canvas_id)
     }
 
     initiateCanvas = (canvas_type) => {
         // const canvas_type = "standard_canvas"
-        this.props.createNewCanvas(canvas_type, this.props.token)
+        this.props.createNewCanvas(canvas_type, this.props.token,(this.props.location.pathname[1]))
 
         // this.dispatchNewRoute('/designer/New_Canvas')
     }

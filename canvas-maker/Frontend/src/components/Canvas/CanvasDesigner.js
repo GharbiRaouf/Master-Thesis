@@ -68,7 +68,7 @@ class Designer extends React.Component {
   render() {
     const { isFetching, loaded, classes } = this.props
     const { item_to_display } = this.state;
-    const isShare=this.props.match.path.indexOf("share")>0
+    const isShare=(this.props.match.path).toLowerCase().indexOf("share")>0
     return (
       <div style={{ width: "100%" }}>
 
@@ -129,7 +129,7 @@ class Designer extends React.Component {
           </ClickAwayListener>}
 
           <main className={classes.content}>
-            {(loaded && !isFetching) ? <CanvasModel isShare={isShare} /> : "standard_canvas"}
+            {(loaded && !isFetching) ? <CanvasModel isShare={isShare} /> : "Working on Canvas Design"}
 
           </main>
         </div>

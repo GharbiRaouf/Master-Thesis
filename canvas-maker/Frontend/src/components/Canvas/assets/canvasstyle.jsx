@@ -54,8 +54,8 @@ export const CanvasModelStyles = theme => ({
     card: {
         minWidth: "18%",
         backgroundColor: "#e2e2e2",
-        margin: 0,
-        padding: 0
+        // margin: 0,
+        // padding: 0
     },
     fab_btn: {
         position: 'fixed',
@@ -80,8 +80,8 @@ export const CanvasModelStyles = theme => ({
         // right: theme.spacing.unit * 2,
     },
     paper: {
-        padding: theme.spacing.unit * 2,
-        margin: theme.spacing.unit * 2
+        // padding: theme.spacing.unit * 2,
+        // margin: theme.spacing.unit * 2
     },
     media: {
         height: 0,

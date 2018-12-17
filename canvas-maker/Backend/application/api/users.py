@@ -15,8 +15,9 @@ def get_user():
 @api_bp.route("/get_online_users", methods=["GET"])
 def get_online_user():
     o_user = list(User.find({'isloggedin': True}, {"_id": 0, "password": 0}))
+    online=[a for a in o_user if a["user_group"] != None and a["user_group"] in "CD"]
 
-    return jsonify(result=o_user)
+    return jsonify(result=online)
 
 
 @api_bp.route("/create_user", methods=["POST"])
@@ -61,6 +62,27 @@ def update_user():
 @api_bp.route("/get_token", methods=["POST"])
 def get_token():
     incoming = request.get_json()
+    print("eazeza",incoming)
+    email=incoming['email']
+    pwd=incoming['password']
+    if "anonymous" in email:
+        incoming = request.get_json()
+        grp=incoming["user_group"] 
+        if grp==None:
+            grp="A"
+        user = User(
+            {'email': incoming["email"], 'password': User.hashed_password(incoming["password"]), 'isloggedin': True,"user_group":grp})
+        default_canvas = CanvasInitializer().get_default_canvas(incoming["email"])
+        try:
+            user.save()
+        except Exception:
+            return jsonify(message="User with that email already exists"), 409
+        try:
+            for canvas in default_canvas:
+                c = Canvas(canvas)
+                c.save()
+        except Exception:
+            return jsonify(message="Something Wrong happened..."), 209
     user = User.get_user_with_email_and_password(
         incoming["email"], incoming["password"])
 

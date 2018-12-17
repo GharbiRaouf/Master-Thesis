@@ -23,7 +23,7 @@ export function mustSaveCanvas() {
     }
 }
 
-export function createNewCanvas(canvas_type, token) {
+export function createNewCanvas(canvas_type, token,g) {
     return (dispatch) => {
         dispatch(fetchingCanvasData());
         create_new_canvas(canvas_type, token)
@@ -33,7 +33,7 @@ export function createNewCanvas(canvas_type, token) {
             .then(response => {
 
                 dispatch(loadCanvasData(response.canvas));
-                dispatch(push("/designer/" + response.canvas.canvas_id))
+                dispatch(push("/"+g+"/designer/" + response.canvas.canvas_id))
             })
             .catch(error => {
                 if (error.status === 401) {

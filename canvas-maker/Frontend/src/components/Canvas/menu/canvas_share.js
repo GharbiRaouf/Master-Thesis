@@ -41,7 +41,7 @@ function mapDispatchToProps(dispatch) {
 class CanvasDetails extends React.Component {
     state = {
         expanded: false,
-        CanvasLink: this.props.canvas ?SERVER_URL+"share/"+this.props.canvas.canvas_id : "",
+        CanvasLink: this.props.canvas ?SERVER_URL+this.props.location.pathname[1]+"/share/"+this.props.canvas.canvas_id : "",
         copied: false
     };
 

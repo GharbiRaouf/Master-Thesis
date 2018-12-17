@@ -68,6 +68,7 @@ class UserCollection(Collection):
     structure = {'user_id': str,
                  'email': str,
                  'password': str,
+                 'user_group': str,
                  'username': str,
                  'isloggedin': bool,
                  'canvas_collections': list}
