@@ -25,8 +25,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 class Home extends React.Component {
+    constructor(props) {
+        this.setState({ dirr: props.location.pathname[1] })
+        this.skipRegister=this.skipRegister.bind(this)
+    }
     state = {
         open: false,
+        dirr: "A",
         canvas_type: "standard_canvas"
     }
     openRegister = (str) => {
@@ -36,10 +41,10 @@ class Home extends React.Component {
         })
     }
     skipRegister = () => {
-        this.props.loginUser("anonymous"+nanoid(5)+"@canvas.com", "@canvas2018", this.props.location.pathname[1]);
-        this.props.changePage("/"+this.props.location.pathname[1]+'/main');
+        this.props.loginUser("anonymous" + nanoid(5) + "@canvas.com", "@canvas2018", this.state.dirr);
+        this.props.changePage("/" + this.state.dirr + '/main');
 
-        this.props.makeAnonymousCanvas(this.state.canvas_type)
+        // this.props.makeAnonymousCanvas(this.state.canvas_type)
         this.openRegister(this.state.canvas_type);
     }
     render() {
@@ -90,4 +95,4 @@ class Home extends React.Component {
 
 
 
-export default withRouter (connect(mapStateToProps, mapDispatchToProps)(Home))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Home))
