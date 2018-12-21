@@ -1,7 +1,6 @@
 openpyxl==2.5.4
 flask-cors==3.0.6
 Flask==1.0.2
-tensorflow
 pymongo==3.0.3
 nanoid
 pusher
