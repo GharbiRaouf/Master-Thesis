@@ -1,0 +1,9 @@
+tensorflow
+textgenrnn
+keras
+gensim
+gunicorn
+numpy
+flask
+matplotlib
+wtforms
