@@ -1,6 +1,6 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid'
-import { Card, CardActions, Typography, Button, Modal } from '@material-ui/core';
+import { Card, CardActions, Typography, Button, Modal, Dialog, DialogTitle, DialogContent, DialogContentText, CircularProgress } from '@material-ui/core';
 import Register from "../RegisterView"
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
@@ -27,12 +27,13 @@ function mapDispatchToProps(dispatch) {
 class Home extends React.Component {
     constructor(props) {
         super(props)
-        this.state={ dirr: props.location.pathname[1] }
-        this.skipRegister=this.skipRegister.bind(this)
+        this.state = { dirr: props.location.pathname[1] }
+        this.skipRegister = this.skipRegister.bind(this)
     }
     state = {
         open: false,
         dirr: "A",
+        openAuthProgress:false,
         canvas_type: "standard_canvas"
     }
     openRegister = (str) => {
@@ -42,10 +43,16 @@ class Home extends React.Component {
         })
     }
     skipRegister = () => {
-        this.props.loginUser("anonymous" + nanoid(5) + "@canvas.com", "@canvas2018", this.state.dirr);
-        this.props.changePage("/" + this.state.dirr + '/main');
+        this.setState({
+            openAuthProgress:true
+        })
+        this.props.loginUser("anonymous" + nanoid(5) + "@canvas.com", "@canvas2018", this.state.dirr).then(() => {
+            // console.log("Connected to anonymous");
+            this.setState({
+                openAuthProgress:false
+            })
 
-        // this.props.makeAnonymousCanvas(this.state.canvas_type)
+        });
         this.openRegister(this.state.canvas_type);
     }
     render() {
@@ -89,6 +96,23 @@ class Home extends React.Component {
                     </Register>
                 </div>
             </Modal>
+            <Dialog
+                disableBackdropClick
+                disableEscapeKeyDown
+                open={this.state.openAuthProgress}
+                onClose={this.handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Authentificating as an Anonymous User ..."}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText align="center" id="alert-dialog-description">
+                        <CircularProgress />
+                    </DialogContentText>
+                </DialogContent>
+            </Dialog>
         </section>;
 
     }

@@ -19,7 +19,7 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../../actions/canvas';
-import { SERVER_ENTRY } from "../../../constants/utils";
+import { FRONTEND_URL } from "../../../constants/utils";
 
 
 
@@ -41,7 +41,7 @@ function mapDispatchToProps(dispatch) {
 class CanvasDetails extends React.Component {
     state = {
         expanded: false,
-        CanvasLink: this.props.canvas ?SERVER_ENTRY+"share/"+this.props.canvas.canvas_id : "",
+        CanvasLink: this.props.canvas ?FRONTEND_URL+"share/"+this.props.canvas.canvas_id : "",
         copied: false
     };
 
@@ -65,7 +65,7 @@ class CanvasDetails extends React.Component {
         });
 
         this.props.mustSaveCanvas()
-        this.props.updateCanvas("canvas_link", isShareable&& CanvasLink)
+        this.props.updateCanvas("canvas_shared", isShareable&& CanvasLink)
     }
 
     render() {

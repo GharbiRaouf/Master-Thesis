@@ -4,11 +4,11 @@ from application import bcrypt
 # First, declare a Document/Collection pair (a "model"):
 from mongokat import Collection, Document
 
-# client = MongoClient(host=os.getenv(
-#     'DATABASE_HOST', 'localhost'), connect=False)
-client= MongoClient(
-    os.environ['DB_PORT_27017_TCP_ADDR'],
-    27017)
+client = MongoClient(host=os.getenv(
+    'DATABASE_HOST', 'localhost'), connect=False)
+# client= MongoClient(
+#     os.environ['DB_PORT_27017_TCP_ADDR'],
+#     27017)
 db = client[os.getenv('DATABASE_NAME', 'CanvasDB')]
 
 
@@ -53,7 +53,7 @@ class CanvasCollection(Collection):
         'canvas_team': list,
         'canvas_preview': str,
         'canvas_notes': list,
-        'canvas_visibility': str,
+        'canvas_shared': str,
         'canvas_rating': str,
         'canvas_ratings': list,
         'canvas_lastUpdate': str

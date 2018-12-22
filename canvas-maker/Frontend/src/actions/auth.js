@@ -68,15 +68,15 @@ export function redirectToRoute(route) {
     };
 }
 
-export function loginUser(email, password,group) {
+export function loginUser(email, password,user_group) {
     return function (dispatch) {
         dispatch(loginUserRequest());
-        return get_token(email, password,group)
+        return get_token(email, password,user_group)
             .then(parseJSON)
             .then(response => {
                 try {
                     dispatch(loginUserSuccess(response.token));
-                    dispatch(push(group+'/main'));
+                    dispatch(push(user_group+'/dashboard'));
                 } catch (e) {
                     alert(e);
                     dispatch(loginUserFailure({

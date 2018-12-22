@@ -36,20 +36,22 @@ export function requireNoAuthentication(Component) {
             this.checkAuth();
         }
 
-        componentWillReceiveProps(nextProps) {
-            this.checkAuth(nextProps);
-        }
+        // componentWillReceiveProps(nextProps) {
+        //     this.checkAuth(nextProps);
+        // }
 
-        checkAuth(props = this.props) {
-            if (props.isAuthenticated) {
-                return props.redirectToRoute("/"+this.props.location.pathname[1]+'/main');
+        checkAuth=(props = this.props)=> {
+            // if (props.isAuthenticated) {
+            //     return props.redirectToRoute("/"+this.props.location.pathname[1]+'/main');
 
-            } else {
+            // } else {
                 const token = localStorage.getItem('token');
                 if (token) {
                     validate_token(token)
                         .then(res => {
                             if (res.status === 200) {
+                                console.log("Ok Login");
+                                
                                 this.props.loginUserSuccess(token);
                                 return props.redirectToRoute("/"+this.props.location.pathname[1]+'/main');
 
@@ -68,13 +70,13 @@ export function requireNoAuthentication(Component) {
                         loaded: true,
                     });
                 }
-            }
+            // }
         }
 
         render() {
             return (
                 <div>
-                    {!this.props.isAuthenticated || this.state.loaded
+                    {this.state.loaded
                         ? <Component {...this.props} />
                         : <h3>
                             You are at the wrong Position
