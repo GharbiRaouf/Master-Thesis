@@ -110,5 +110,5 @@ Prototype/data/
 \.idea/
 
 Prototype/WebApp/textgeneration/weights/
-
+data/
 *.hdf5

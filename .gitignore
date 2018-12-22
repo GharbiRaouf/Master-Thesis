@@ -2,3 +2,7 @@
 canvas-maker/\.idea/
 
 canvas-maker/Prototype/WebApp/\.vscode/
+
+canvas-maker/Frontend/src/constants/utils\.js
+
+canvas-maker/Backend/application/backend_dashboard/src/utils/server_constants\.js
